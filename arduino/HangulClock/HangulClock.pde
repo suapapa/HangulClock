@@ -16,18 +16,42 @@ void setup(void)
   pinMode(PIN_LED, OUTPUT);    
 }
 
+void test_mat(void);
+
 void loop(void)
 {
-  digitalWrite(PIN_LED, LOW);
-  mat.clear();
-  delay(1000);
+  test_mat();
+}
+
+void test_mat(void)
+{
+  // blink all leds
   for(int i = 0; i < 5; i++) {
     for(int j = 0; j < 5; j++) {
       mat.write(row[i], col[j], HIGH);
     }
   }
-  digitalWrite(PIN_LED, HIGH);
   delay(1000);
+  mat.clear();
+  delay(1000);
+
+  // row rotate
+  for(int i = 0; i < 5; i++) {
+    for(int j = 0; j < 5; j++) {
+      mat.write(row[i], col[j], HIGH);
+    }
+    delay(1000);
+    mat.clear();
+  }
+
+  // column rotate
+  for(int i = 0; i < 5; i++) {
+    for(int j = 0; j < 5; j++) {
+      mat.write(row[j], col[i], HIGH);
+    }
+    delay(1000);
+    mat.clear();
+  }
 }
 
 /* vim: set sw=2 et: */
