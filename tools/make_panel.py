@@ -24,7 +24,11 @@ panelString = '''
 t = ''.join(panelString.split())
 panelChars = list(t.decode('utf-8'))
 
-panelSize = (236*5, 236*5) # 236 == 20mm on 300dpi
+DPI = 300
+cSize = 20 # 20mm for W & H of one character
+
+cPix = int((DPI * 20 )/25.4) # 1 inch == 25.4 mm
+panelSize = (cPix*5, cPix*5) # 236 == 20mm on 300dpi
 
 image = Image.new('RGB', panelSize)
 draw = ImageDraw.Draw(image)
@@ -55,6 +59,6 @@ for y in range(5):
         #print panelChar.encode('utf-8'), charSize, xMargin, yMargin
         draw.text((x*236+xMargin, y*236+yMargin), panelChar, font=font)
 
-image.save('panel_%s.png'%os.path.basename(fontPath))
+image.save('panel_%s.png'%os.path.basename(fontPath), dpi=(DPI, DPI))
 
 # vim: et sw=4 fenc=utf-8:
