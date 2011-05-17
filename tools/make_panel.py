@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
- 
-# make_panel.py - make silkscreen for panel of hangulclock 
+
+# make_panel.py - make silkscreen for panel of hangulclock
 #
 # Copyright (C) 2011 Homin Lee <ff4500@gmail.com>
 #
@@ -34,28 +34,28 @@ image = Image.new('RGB', panelSize)
 draw = ImageDraw.Draw(image)
 
 # The fonts from http://hangeul.naver.com
-# I used it via ttf-nanum package of Ubuntu linux    
-fontPath = r'/usr/share/fonts/truetype/nanum/NanumPen.ttf'    
-#fontPath = r'/usr/share/fonts/truetype/nanum/NanumBrush.ttf'
+# I used it via ttf-nanum package of Ubuntu linux
+fontPath = r'/usr/share/fonts/truetype/nanum/NanumMyeongjo.ttf'
 
-'''
 # To find proper fontsize fited-in given dimention
+fontSize = 0
 for i in range(32, 2000):
     font = ImageFont.truetype(fontPath, i, encoding="unic")
     text = "한".decode('utf-8')
     textSize = font.getsize(text)
     if textSize[0] > 236 or textSize[1] > 236:
         print textSize, i
+        fontSize = i - 10
         break
-'''
-font = ImageFont.truetype(fontPath, 205, encoding="unic")
+
+font = ImageFont.truetype(fontPath, fontSize, encoding="unic")
 
 for y in range(5):
     for x in range(5):
         panelChar = panelChars[x+(y*5)]
         charSize = font.getsize(panelChar)
-        xMargin = (236 - charSize[0])/2 
-        yMargin = (236 - charSize[1])/2 
+        xMargin = (236 - charSize[0])/2
+        yMargin = (236 - charSize[1])/2
         #print panelChar.encode('utf-8'), charSize, xMargin, yMargin
         draw.text((x*236+xMargin, y*236+yMargin), panelChar, font=font)
 
