@@ -11,7 +11,7 @@
 # (at your option) any later version.
 
 import Image
-import ImageFont, ImageDraw
+import ImageFont, ImageDraw, ImageOps
 import os
 
 panelString = '''
@@ -59,6 +59,7 @@ for y in range(5):
         #print panelChar.encode('utf-8'), charSize, xMargin, yMargin
         draw.text((x*236+xMargin, y*236+yMargin), panelChar, font=font)
 
+image = ImageOps.mirror(image)
 image.save('panel_%s.png'%os.path.basename(fontPath), dpi=(DPI, DPI))
 
 # vim: et sw=4 fenc=utf-8:
