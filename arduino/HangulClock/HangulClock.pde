@@ -11,11 +11,30 @@ Matrix mat = Matrix(PIN_MAX7219_DATA, PIN_MAX7219_CLK, PIN_MAX7219_LOAD);
 int col[5] = {3, 1, 5, 4, 0};
 int row[5] = {5, 1, 6, 2, 7};
 #define M_ON(M, R, C) M.write(row[R], col[C], HIGH)
+#define M_OFF(M, R, C) M.write(row[R], col[C], LOW)
+
+Sprite timePanel = Sprite(
+  5, 5,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+);
+#define P_ON(R, C) M_ON(timePanel, R, C)
+#define P_OFF(R, C) M_OFF(timePanel, R, C)
+
+#define CLEAR_PANEL() \
+  for(int i = 0; i < 5; i++) {\
+    for(int j = 0; j < 5; j++) {\
+      P_OFF(i, j);\
+    }\
+  }
 
 void setup(void)
 {
   pinMode(PIN_LED, OUTPUT);
-  mat.setBrightnexx(10) // 0 to 15
+  mat.setBrightness(10); // 0 to 15
 }
 
 void test_mat(void);
@@ -27,47 +46,66 @@ void loop(void)
 
 void m_on(int h, int m)
 {
+  if (h > 12) h -= 12;
   switch(h) {
-    case 1: break;
-    case 2: break;
-    case 3: break;
-    case 4: break;
-    case 5: break;
-    case 6: break;
-    case 7: break;
-    case 8: break;
-    case 9: break;
-    case 12: break;
-    case 13: break;
-    case 14: break;
-    case 15: break;
-    case 16: break;
-    case 17: break;
-    case 18: break;
-    case 19: break;
-    case 20: break;
-    case 21: break;
-    case 22: break;
-    case 23: break;
-    case 24: break;
+    case 0: case 12:
+      P_ON(0, 0); P_ON(1, 0); P_ON(2, 4);
+      break;
+    case 1:
+      P_ON(0, 1); P_ON(2, 4);
+      break;
+    case 2:
+      P_ON(1, 0); P_ON(2, 4);
+      break;
+    case 3:
+      P_ON(0, 3); P_ON(2, 4);
+      break;
+    case 4:
+      P_ON(0, 4); P_ON(2, 4);
+      break;
+    case 5:
+      P_ON(0, 2); P_ON(1, 2); P_ON(2, 4);
+      break;
+    case 6:
+      P_ON(1, 1); P_ON(1, 2); P_ON(2, 4);
+      break;
+    case 7:
+      P_ON(1, 3); P_ON(1, 4); P_ON(2, 4);
+      break;
+    case 8:
+      P_ON(2, 0); P_ON(2, 1); P_ON(2, 4);
+      break;
+    case 9:
+      P_ON(2, 2); P_ON(2, 3); P_ON(2, 4);
+      break;
+    case 10:
+      P_ON(0, 0); P_ON(2, 4);
+      break;
+    case 11:
+      P_ON(0, 0); P_ON(0, 1); P_ON(2, 4);
+      break;
   }
 
-  switch (m) {
-    case 0: break;
-    case 5: break;
-    case 10: break;
-    case 15: break;
-    case 20: break;
-    case 25: break;
-    case 30: break;
-    case 35: break;
-    case 40: break;
-    case 45: break;
-    case 50: break;
-    case 55: break;
-    case 60: break;
+  switch (m / 10) {
+    case 1:
+      P_ON(3, 4); P_ON(4, 4);
+      break;
+    case 2:
+      P_ON(3, 2); P_ON(4, 2); P_ON(4, 4);
+      break;
+    case 3:
+      P_ON(3, 3); P_ON(3, 4); P_ON(4, 4);
+      break;
+    case 4:
+      P_ON(4, 0); P_ON(4, 2); P_ON(4, 4);
+      break;
+    case 5:
+      P_ON(4, 1); P_ON(4, 2); P_ON(4, 4);
+      break;
   }
 
+  if (m % 10 == 5)
+    P_ON(4, 3);
 }
 
 void test_mat(void)
