@@ -38,19 +38,53 @@ Sprite timePanel = Sprite(
 #define PIN_HT1380_SCLK 5
 HT1380 rtc = HT1380(PIN_HT1380_REST, PIN_HT1380_IO, PIN_HT1380_SCLK);
 
+unsigned long timestamp;
+
 void setup(void)
 {
   pinMode(PIN_LED, OUTPUT);
   mat.setBrightness(10); // 0 to 15
 
   rtc.init();
+
+  timestamp = millis();
 }
 
 void test_mat(void);
+void m_on(int, int);
+void set_rtc(uint8_t, uint8_t, uint8_t,
+    uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 
 void loop(void)
 {
   test_mat();
+
+  // update panel in every 1 min
+  if (timestamp - millis() > 1000 * 60) {
+    rtc.readBurst();
+    m_on(rtc.getHour(), rtc.getMin());
+  }
+
+  delay(1000); // sleep 1 sec
+  timestamp = millis();
+}
+
+void set_rtc(uint8_t h, uint8_t m, uint8_t s,
+    uint8_t year, uint8_t month, uint8_t date,
+    uint8_t day, uint8_t wp)
+{
+  // set current time to RTC instance
+  rtc.setHour(h);
+  rtc.setMin(m);
+  rtc.setSec(s);
+  rtc.setYear(year);
+  rtc.setMonth(month);
+  rtc.setDate(date);
+  rtc.setDay(day);
+  rtc.setWP(wp);
+
+  // write the time to HT1380
+  rtc.writeBurst();
 }
 
 void m_on(int h, int m)
