@@ -48,6 +48,8 @@ void setup(void)
   rtc.init();
 
   timestamp = millis();
+
+  Serial.begin(9600);
 }
 
 void test_mat(void);
@@ -60,9 +62,26 @@ void loop(void)
   test_mat();
 
   // update panel in every 1 min
-  if (timestamp - millis() > 1000 * 60) {
+  if (millis() - timestamp > 1000 * 60) {
     rtc.readBurst();
     m_on(rtc.getHour(), rtc.getMin());
+  }
+
+  // #C for clear panel
+  // #L<R><C> for turn on a LED in row R and column C
+  // #R<h><m><s><Y><M><D><d><wp> for set the RTC
+  if (Serial.available() > 1 && '#' == Serial.read()) {
+    char func = Serial.read();
+    delay(10); // wait enough for following chars
+    if (func == 'C') {
+      CLEAR_PANEL();
+    } else if (func == 'L') {
+      P_ON(Serial.read(), Serial.read());
+    } else if (func == 'R') {
+      set_rtc(Serial.read(), Serial.read(), Serial.read(),
+          Serial.read(), Serial.read(), Serial.read(),
+          Serial.read(), Serial.read());
+    }
   }
 
   delay(1000); // sleep 1 sec
