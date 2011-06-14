@@ -1,0 +1,58 @@
+#######################################
+# Syntax Coloring Map For HT1380
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+HT1380	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+init	KEYWORD2
+
+readHour	KEYWORD2
+readMin	KEYWORD2
+readSec	KEYWORD2
+readYear	KEYWORD2
+readMonth	KEYWORD2
+readDate	KEYWORD2
+readDay	KEYWORD2
+readWP	KEYWORD2
+readBurst	KEYWORD2
+
+writeHour	KEYWORD2
+writeMin	KEYWORD2
+writeSec	KEYWORD2
+writeYear	KEYWORD2
+writeMonth	KEYWORD2
+writeDate	KEYWORD2
+writeDay	KEYWORD2
+writeWP	KEYWORD2
+writeBurst	KEYWORD2
+
+getHour	KEYWORD2
+getMin	KEYWORD2
+getSec	KEYWORD2
+getYear	KEYWORD2
+getMonth	KEYWORD2
+getDate	KEYWORD2
+getDay	KEYWORD2
+getWP	KEYWORD2
+
+setHour	KEYWORD2
+setMin	KEYWORD2
+setSec	KEYWORD2
+setYear	KEYWORD2
+setMonth	KEYWORD2
+setDate	KEYWORD2
+setDay	KEYWORD2
+setWP	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

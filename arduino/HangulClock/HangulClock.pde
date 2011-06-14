@@ -31,10 +31,19 @@ Sprite timePanel = Sprite(
     }\
   }
 
+#include <HT1380.h>
+
+#define PIN_HT1380_REST 7
+#define PIN_HT1380_IO 6
+#define PIN_HT1380_SCLK 5
+HT1380 rtc = HT1380(PIN_HT1380_REST, PIN_HT1380_IO, PIN_HT1380_SCLK);
+
 void setup(void)
 {
   pinMode(PIN_LED, OUTPUT);
   mat.setBrightness(10); // 0 to 15
+
+  rtc.init();
 }
 
 void test_mat(void);
