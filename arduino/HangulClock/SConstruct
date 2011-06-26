@@ -102,11 +102,11 @@ for line in open(ARDUINO_CONF):
     if result:
         boards[result[0][0]] = result[0][1]
 if not ARDUINO_BOARD in boards.keys():
-    print ("ERR! given boardname, %s is not in supported board list."%ARDUINO_BOARD)
-    print ("all available boardname is following:")
+    print ("ERROR! the given board name, %s is not in the supported board list:"%ARDUINO_BOARD)
+    print ("all available board names are:")
     for name in boards.keys():
-        print ("\t%s\t for %s"%(name, boards[name]))
-    print ("maybe, you want edit %s for add new board."%ARDUINO_CONF)
+        print ("\t%s for %s"%(name.ljust(14), boards[name]))
+    print ("however, you may edit %s to add a new board."%ARDUINO_CONF)
     sys.exit(-1)
 
 def getBoardConf(strPtn):
@@ -159,7 +159,7 @@ core_sources = map(lambda x: x.replace(ARDUINO_CORE, 'build/core/'), core_source
 
 # add libraries
 libCandidates = []
-ptnLib = re.compile(r'^[ ]*#[ ]*include <(.*)\.h>')
+ptnLib = re.compile(r'^[ ]*#[ ]*include [<"](.*)\.h[>"]')
 for line in open (TARGET+'.pde'):
     result = ptnLib.findall(line)
     if result:
@@ -208,12 +208,8 @@ envArduino.Hex(TARGET+'.hex', TARGET+'.elf')
 # Print Size
 # TODO: check binary size
 MAX_SIZE = getBoardConf(r'^%s\.upload.maximum_size=(.*)'%ARDUINO_BOARD)
-
+print ("maximum size for hex file: %s bytes"%MAX_SIZE)
 envArduino.Command(None, TARGET+'.hex', AVR_BIN_PREFIX+'size --target=ihex $SOURCE')
-
-#if not ARDUINO_PORT:
-#    print 'ARDUINO_PORT must be defined.'
-#    raise KeyError('ARDUINO_PORT')
 
 # Reset
 def pulseDTR(target, source, env):

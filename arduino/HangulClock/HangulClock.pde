@@ -3,26 +3,31 @@
 
 #define PIN_LED 13
 
-#define PIN_MAX7219_DATA 12
-#define PIN_MAX7219_CLK  11
-#define PIN_MAX7219_LOAD 10
+#define PIN_MAX7219_DATA 4  
+#define PIN_MAX7219_CLK  3
+#define PIN_MAX7219_LOAD 2
 Matrix mat = Matrix(PIN_MAX7219_DATA, PIN_MAX7219_CLK, PIN_MAX7219_LOAD);
 
 int col[5] = {3, 1, 5, 4, 0};
-int row[5] = {5, 1, 6, 2, 7};
-#define M_ON(M, R, C) M.write(row[R], col[C], HIGH)
-#define M_OFF(M, R, C) M.write(row[R], col[C], LOW)
+int row[5] = {7, 2, 6, 1, 5};
+#define _M_ON(M, R, C) M.write(row[R], col[C], HIGH)
+#define _M_OFF(M, R, C) M.write(row[R], col[C], LOW)
+
+//#define M_ON(M, C, R) _M_ON(M, R, C)
+//#define M_OFF(M, C, R) _M_OFF(M, R, C)
+#define M_ON(M, R, C) _M_ON(M, R, C)
+#define M_OFF(M, R, C) _M_OFF(M, R, C)
 
 Sprite timePanel = Sprite(
-  5, 5,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000
-);
-#define P_ON(R, C) M_ON(timePanel, R, C)
-#define P_OFF(R, C) M_OFF(timePanel, R, C)
+    5, 5,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000
+    );
+#define P_ON(C, R) M_ON(mat, R, C)
+#define P_OFF(C, R) M_OFF(mat, R, C)
 
 #define CLEAR_PANEL() \
   for(int i = 0; i < 5; i++) {\
@@ -33,9 +38,9 @@ Sprite timePanel = Sprite(
 
 #include <HT1380.h>
 
-#define PIN_HT1380_REST 7
-#define PIN_HT1380_IO 6
-#define PIN_HT1380_SCLK 5
+#define PIN_HT1380_SCLK 6
+#define PIN_HT1380_IO 5
+#define PIN_HT1380_REST 4
 HT1380 rtc = HT1380(PIN_HT1380_REST, PIN_HT1380_IO, PIN_HT1380_SCLK);
 
 unsigned long timestamp;
@@ -59,24 +64,34 @@ void set_rtc(uint8_t, uint8_t, uint8_t,
 
 void loop(void)
 {
-  test_mat();
-
+  //test_mat();
+#if 0
   // update panel in every 1 min
   if (millis() - timestamp > 1000 * 60) {
     rtc.readBurst();
     m_on(rtc.getHour(), rtc.getMin());
   }
-
+#endif
   // #C for clear panel
   // #L<R><C> for turn on a LED in row R and column C
   // #R<h><m><s><Y><M><D><d><wp> for set the RTC
   if (Serial.available() > 1 && '#' == Serial.read()) {
     char func = Serial.read();
+    int hour = 0;
+    int minute = 0;
     delay(10); // wait enough for following chars
-    if (func == 'C') {
+    if (func == 'P') {
+      test_mat();
+    } else if (func == 'T') {
+      hour = 10 * (Serial.read() - '0');
+      hour += (Serial.read() - '0');
+      minute = 10 * (Serial.read() - '0');
+      minute += (Serial.read() - '0');
+      m_on(hour, minute);
+    } else if (func == 'C') {
       CLEAR_PANEL();
     } else if (func == 'L') {
-      P_ON(Serial.read(), Serial.read());
+      P_ON(Serial.read() - '0', Serial.read() - '0');
     } else if (func == 'R') {
       set_rtc(Serial.read(), Serial.read(), Serial.read(),
           Serial.read(), Serial.read(), Serial.read(),
@@ -111,59 +126,26 @@ void m_on(int h, int m)
   if (h > 12) h -= 12;
   switch(h) {
     case 0: case 12:
-      P_ON(0, 0); P_ON(1, 0); P_ON(2, 4);
-      break;
-    case 1:
-      P_ON(0, 1); P_ON(2, 4);
-      break;
-    case 2:
-      P_ON(1, 0); P_ON(2, 4);
-      break;
-    case 3:
-      P_ON(0, 3); P_ON(2, 4);
-      break;
-    case 4:
-      P_ON(0, 4); P_ON(2, 4);
-      break;
-    case 5:
-      P_ON(0, 2); P_ON(1, 2); P_ON(2, 4);
-      break;
-    case 6:
-      P_ON(1, 1); P_ON(1, 2); P_ON(2, 4);
-      break;
-    case 7:
-      P_ON(1, 3); P_ON(1, 4); P_ON(2, 4);
-      break;
-    case 8:
-      P_ON(2, 0); P_ON(2, 1); P_ON(2, 4);
-      break;
-    case 9:
-      P_ON(2, 2); P_ON(2, 3); P_ON(2, 4);
-      break;
-    case 10:
-      P_ON(0, 0); P_ON(2, 4);
-      break;
-    case 11:
-      P_ON(0, 0); P_ON(0, 1); P_ON(2, 4);
-      break;
+      P_ON(0, 0); P_ON(1, 0); P_ON(2, 4); break;
+    case 1: P_ON(0, 1); P_ON(2, 4); break;
+    case 2: P_ON(1, 0); P_ON(2, 4); break;
+    case 3: P_ON(0, 3); P_ON(2, 4); break;
+    case 4: P_ON(0, 4); P_ON(2, 4); break;
+    case 5: P_ON(0, 2); P_ON(1, 2); P_ON(2, 4); break;
+    case 6: P_ON(1, 1); P_ON(1, 2); P_ON(2, 4); break;
+    case 7: P_ON(1, 3); P_ON(1, 4); P_ON(2, 4); break;
+    case 8: P_ON(2, 0); P_ON(2, 1); P_ON(2, 4); break;
+    case 9: P_ON(2, 2); P_ON(2, 3); P_ON(2, 4); break;
+    case 10: P_ON(0, 0); P_ON(2, 4); break;
+    case 11: P_ON(0, 0); P_ON(0, 1); P_ON(2, 4); break;
   }
 
   switch (m / 10) {
-    case 1:
-      P_ON(3, 4); P_ON(4, 4);
-      break;
-    case 2:
-      P_ON(3, 2); P_ON(4, 2); P_ON(4, 4);
-      break;
-    case 3:
-      P_ON(3, 3); P_ON(3, 4); P_ON(4, 4);
-      break;
-    case 4:
-      P_ON(4, 0); P_ON(4, 2); P_ON(4, 4);
-      break;
-    case 5:
-      P_ON(4, 1); P_ON(4, 2); P_ON(4, 4);
-      break;
+    case 1: P_ON(3, 4); P_ON(4, 4); break;
+    case 2: P_ON(3, 2); P_ON(4, 2); P_ON(4, 4); break;
+    case 3: P_ON(3, 3); P_ON(3, 4); P_ON(4, 4); break;
+    case 4: P_ON(4, 0); P_ON(4, 2); P_ON(4, 4); break;
+    case 5: P_ON(4, 1); P_ON(4, 2); P_ON(4, 4); break;
   }
 
   if (m % 10 == 5)
@@ -175,29 +157,25 @@ void test_mat(void)
   // blink all leds
   for(int i = 0; i < 5; i++) {
     for(int j = 0; j < 5; j++) {
-      M_ON(mat, i, j);
+      P_ON(i, j);
     }
   }
-  delay(1000);
-  mat.clear();
-  delay(1000);
+  delay(100); mat.clear(); delay(100); 
 
   // row rotate
   for(int i = 0; i < 5; i++) {
     for(int j = 0; j < 5; j++) {
-      M_ON(mat, i, j);
+      P_ON(i, j);
     }
-    delay(1000);
-    mat.clear();
+    delay(100); mat.clear();
   }
 
   // column rotate
   for(int i = 0; i < 5; i++) {
     for(int j = 0; j < 5; j++) {
-      M_ON(mat, j, i);
+      P_ON(j, i);
     }
-    delay(1000);
-    mat.clear();
+    delay(100); mat.clear();
   }
 }
 
