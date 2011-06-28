@@ -58,7 +58,7 @@ void setup(void)
 }
 
 void test_mat(void);
-void m_on(int, int);
+void show_time(int, int);
 void set_rtc(uint8_t, uint8_t, uint8_t,
     uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 
@@ -69,7 +69,7 @@ void loop(void)
   // update panel in every 1 min
   if (millis() - timestamp > 1000 * 60) {
     rtc.readBurst();
-    m_on(rtc.getHour(), rtc.getMin());
+    show_time(rtc.getHour(), rtc.getMin());
   }
 #endif
   // #C for clear panel
@@ -87,7 +87,7 @@ void loop(void)
       hour += (Serial.read() - '0');
       minute = 10 * (Serial.read() - '0');
       minute += (Serial.read() - '0');
-      m_on(hour, minute);
+      show_time(hour, minute);
     } else if (func == 'C') {
       CLEAR_PANEL();
     } else if (func == 'L') {
@@ -121,9 +121,27 @@ void set_rtc(uint8_t h, uint8_t m, uint8_t s,
   rtc.writeBurst();
 }
 
-void m_on(int h, int m)
+void show_time(int h, int m)
 {
+  int m_10 = m / 10;
+  int m_1 = m % 10;
+
+  switch (m_1) {
+    case 1: case 2: case 3:
+      m_1 = 0; break;
+    case 4: case 5: case 6:
+      m_1 = 5; break;
+    case 7: case 8: case 9:
+      m_1 = 0; m_10 += 1; break;
+  }
+
+  if (m_10 >= 6) {
+    m_10 = 0;
+    h += 1;
+  }
+
   if (h > 12) h -= 12;
+
   switch(h) {
     case 0: case 12:
       P_ON(0, 0); P_ON(1, 0); P_ON(2, 4); break;
@@ -140,7 +158,7 @@ void m_on(int h, int m)
     case 11: P_ON(0, 0); P_ON(0, 1); P_ON(2, 4); break;
   }
 
-  switch (m / 10) {
+  switch (m_10) {
     case 1: P_ON(3, 4); P_ON(4, 4); break;
     case 2: P_ON(3, 2); P_ON(4, 2); P_ON(4, 4); break;
     case 3: P_ON(3, 3); P_ON(3, 4); P_ON(4, 4); break;
@@ -148,7 +166,7 @@ void m_on(int h, int m)
     case 5: P_ON(4, 1); P_ON(4, 2); P_ON(4, 4); break;
   }
 
-  if (m % 10 == 5)
+  if (m_1 == 5)
     P_ON(4, 3);
 }
 
