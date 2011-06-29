@@ -28,19 +28,17 @@ int row[5] = {7, 2, 6, 1, 5};
 #define CLEAN_PANEL() \
   mat.clear()
 
-#include <HT1380.h>
-
-#define PIN_HT1380_SCLK 7
-#define PIN_HT1380_IO 6
-#define PIN_HT1380_REST 5
-HT1380 rtc = HT1380(PIN_HT1380_REST, PIN_HT1380_IO, PIN_HT1380_SCLK);
-void rtc_set_time(uint8_t, uint8_t);
-void rtc_get_time(uint8_t *, uint8_t *);
-
 void demo(void);
 void test_mat(void);
 
+uint8_t curr_h, curr_m;
+void set_time(uint8_t, uint8_t);
+void get_time(uint8_t *, uint8_t *);
+
 void show_time(int, int);
+#define show_curr_time() \
+  show_time(curr_h, curr_m); \
+  timestamp = millis()
 
 unsigned long timestamp;
 void setup(void)
@@ -50,25 +48,23 @@ void setup(void)
   //demo();
   test_mat();
 
-  rtc.init();
-  rtc_set_time(3, 15);
-
-  timestamp = millis() - (1000 * 61);
+  set_time(0, 0);
+  show_curr_time();
 
   Serial.begin(9600);
 }
 
 void loop(void)
 {
-#if 1
   // update panel in every 1 min
   if (millis() - timestamp >= 1000 * 60) {
     uint8_t h, m;
-    rtc_get_time(&h, &m);
-    show_time(h, m);
-    timestamp = millis();
+    get_time(&h, &m);
+    m += 1;
+    set_time(h, m);
+    
+    show_curr_time();
   }
-#endif
 
   // Serial commands
   // #D for Demo
@@ -100,14 +96,15 @@ void loop(void)
       Serial.println("OK");
     } else if (func == 'G') {   // Get time
       uint8_t h, m;
-      rtc_get_time(&h, &m);
+      get_time(&h, &m);
       Serial.println("OK");
     } else if (func == 'S') {   // Set time
       hour = 10 * (Serial.read() - '0');
       hour += (Serial.read() - '0');
       minute = 10 * (Serial.read() - '0');
       minute += (Serial.read() - '0');
-      rtc_set_time(hour, minute);
+      set_time(hour, minute);
+      show_curr_time();
       Serial.println("OK");
     }
   }
@@ -116,24 +113,27 @@ void loop(void)
 }
 
 
-void rtc_set_time(uint8_t h, uint8_t m)
+void set_time(uint8_t h, uint8_t m)
 {
-  rtc.setHour(h);
-  rtc.setMin(m);
-  rtc.writeBurst();
+  if (m >= 60) {
+    h += 1; m = 0;
+  }
+
+  if (h >= 24) {
+    h = 0; m = 0;
+  }
+
+  curr_h = h; curr_m = m;
 }
 
-void rtc_get_time(uint8_t *h, uint8_t *m)
+void get_time(uint8_t *h, uint8_t *m)
 {
-  rtc.readBurst();
-  *h = rtc.getHour();
-  *m = rtc.getMin();
+  *h = curr_h;
+  *m = curr_m;
 
   Serial.print((int)(*h));
   Serial.print(":");
   Serial.print((int)(*m));
-  Serial.print(":");
-  Serial.println((int)rtc.getSec());
 }
 
 void show_time(int h, int m)
