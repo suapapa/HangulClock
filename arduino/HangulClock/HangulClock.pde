@@ -187,6 +187,9 @@ void show_time(int h, int m)
     case 11: P_ON(0, 0); P_ON(0, 1); P_ON(2, 4); break;
   }
 
+  if (m == 0)
+    return;
+
   switch (m_10) {
     case 1: P_ON(3, 4); P_ON(4, 4); break;
     case 2: P_ON(3, 2); P_ON(4, 2); P_ON(4, 4); break;
