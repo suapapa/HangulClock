@@ -31,9 +31,9 @@ int row[5] = {7, 2, 6, 1, 5};
 void demo(void);
 void test_mat(void);
 
-uint8_t curr_h, curr_m;
-void set_time(uint8_t, uint8_t);
-void get_time(uint8_t *, uint8_t *);
+uint8_t curr_h, curr_m, curr_s;
+void set_curr_time(uint8_t, uint8_t, uint8_t);
+void get_time(uint8_t *, uint8_t *, uint8_t *);
 
 void show_time(int, int);
 #define show_curr_time() \
@@ -44,24 +44,24 @@ unsigned long timestamp;
 void setup(void)
 {
   pinMode(PIN_LED, OUTPUT);
-  mat.setBrightness(10); // 0 to 15
+  Serial.begin(9600);
+
+  mat.setBrightness(15); // 0 to 15
   //demo();
   test_mat();
 
-  set_time(0, 0);
+  set_curr_time(18, 20, 0);
   show_curr_time();
-
-  Serial.begin(9600);
 }
 
 void loop(void)
 {
-  // update panel in every 1 min
-  if (millis() - timestamp >= 1000 * 60) {
-    uint8_t h, m;
-    get_time(&h, &m);
-    m += 1;
-    set_time(h, m);
+  // update panel in every 1 sec
+  if ((millis() - timestamp) >= 1000) {
+    uint8_t h, m, s;
+    get_time(&h, &m, &s);
+    s += 1;
+    set_curr_time(h, m, s);
     
     show_curr_time();
   }
@@ -95,26 +95,30 @@ void loop(void)
       P_ON(Serial.read() - '0', Serial.read() - '0');
       Serial.println("OK");
     } else if (func == 'G') {   // Get time
-      uint8_t h, m;
-      get_time(&h, &m);
+      uint8_t h, m, s;
+      get_time(&h, &m, &s);
       Serial.println("OK");
     } else if (func == 'S') {   // Set time
       hour = 10 * (Serial.read() - '0');
       hour += (Serial.read() - '0');
       minute = 10 * (Serial.read() - '0');
       minute += (Serial.read() - '0');
-      set_time(hour, minute);
+      set_curr_time(hour, minute, 0);
       show_curr_time();
       Serial.println("OK");
     }
   }
 
-  delay(1000); // sleep 1 sec
+  delay(100); // sleep 1 sec
 }
 
 
-void set_time(uint8_t h, uint8_t m)
+void set_curr_time(uint8_t h, uint8_t m, uint8_t s)
 {
+  if (s >= 60) {
+    m += 1; s = 0;
+  }
+
   if (m >= 60) {
     h += 1; m = 0;
   }
@@ -123,23 +127,33 @@ void set_time(uint8_t h, uint8_t m)
     h = 0; m = 0;
   }
 
-  curr_h = h; curr_m = m;
+  curr_h = h; curr_m = m; curr_s = s;
 }
 
-void get_time(uint8_t *h, uint8_t *m)
+void get_time(uint8_t *h, uint8_t *m, uint8_t *s)
 {
   *h = curr_h;
   *m = curr_m;
+  *s = curr_s;
 
   Serial.print((int)(*h));
   Serial.print(":");
   Serial.print((int)(*m));
+  Serial.print(":");
+  Serial.print((int)(*s));
 }
 
+int last_shown_h = -1;
+int last_shown_m = -1;
 void show_time(int h, int m)
 {
-  if (h > 24) return;
-  if (m > 60) return;
+  if (h > 24 || h < 0) return;
+  if (m > 60 || m < 0) return;
+
+  if (h == last_shown_h && m == last_show_m)
+    return;
+
+  last_shown_h = h; last_shown_m = m;
 
   int m_10 = m / 10;
   int m_1 = m % 10;
