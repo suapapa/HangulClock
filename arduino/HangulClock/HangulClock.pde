@@ -1,5 +1,6 @@
 #include <Sprite.h>
 #include <Matrix.h>
+#include <HT1380.h>
 
 #define PIN_LED 13
 
@@ -29,28 +30,34 @@ int row[5] = {7, 2, 6, 1, 5};
   mat.clear()
 
 void demo(void);
-void test_mat(void);
 
 uint8_t curr_h, curr_m, curr_s;
 void set_curr_time(uint8_t, uint8_t, uint8_t);
-void get_time(uint8_t *, uint8_t *, uint8_t *);
 
+unsigned long timestamp;
 void show_time(int, int);
 #define show_curr_time() \
   show_time(curr_h, curr_m); \
   timestamp = millis()
 
-unsigned long timestamp;
+HT1380 rtc = HT1380(7, 6, 5);
+void set_rtc(uint8_t, uint8_t, uint8_t);
+void get_rtc(uint8_t *, uint8_t *, uint8_t *);
+
 void setup(void)
 {
   pinMode(PIN_LED, OUTPUT);
   Serial.begin(9600);
-
   mat.setBrightness(15); // 0 to 15
-  //demo();
-  test_mat();
 
-  set_curr_time(18, 20, 0);
+  //test_mat();
+
+  digitalWrite(PIN_LED, HIGH);
+  rtc.init();
+  digitalWrite(PIN_LED, LOW);
+
+  get_rtc(&curr_h, &curr_m, &curr_s);
+
   show_curr_time();
 }
 
@@ -58,11 +65,7 @@ void loop(void)
 {
   // update panel in every 1 sec
   if ((millis() - timestamp) >= 1000) {
-    uint8_t h, m, s;
-    get_time(&h, &m, &s);
-    s += 1;
-    set_curr_time(h, m, s);
-    
+    set_curr_time(curr_h, curr_m, curr_s + 1);
     show_curr_time();
   }
 
@@ -76,42 +79,36 @@ void loop(void)
     char func = Serial.read();
     int hour = 0;
     int minute = 0;
+    int sec = 0;
     delay(10); // wait enough for following chars
     if (func == 'D') {          // Demo
-      test_mat();
       demo();
-      Serial.println("OK");
-    } else if (func == 'T') {   // Show time
-      hour = 10 * (Serial.read() - '0');
-      hour += (Serial.read() - '0');
-      minute = 10 * (Serial.read() - '0');
-      minute += (Serial.read() - '0');
-      show_time(hour, minute);
-      Serial.println("OK");
-    } else if (func == 'C') {   // Clean panel
-      CLEAN_PANEL();
-      Serial.println("OK");
-    } else if (func == 'L') {   // LED on at
-      P_ON(Serial.read() - '0', Serial.read() - '0');
       Serial.println("OK");
     } else if (func == 'G') {   // Get time
       uint8_t h, m, s;
-      get_time(&h, &m, &s);
+      get_rtc(&h, &m, &s);
+      Serial.print((int)(h));
+      Serial.print(":");
+      Serial.print((int)(m));
+      Serial.print(":");
+      Serial.print((int)(s));
       Serial.println("OK");
     } else if (func == 'S') {   // Set time
       hour = 10 * (Serial.read() - '0');
       hour += (Serial.read() - '0');
       minute = 10 * (Serial.read() - '0');
       minute += (Serial.read() - '0');
-      set_curr_time(hour, minute, 0);
+      sec = 10 * (Serial.read() - '0');
+      sec += (Serial.read() - '0');
+      set_curr_time(hour, minute, sec);
+      set_rtc(hour, minute, sec);
       show_curr_time();
       Serial.println("OK");
     }
   }
 
-  delay(100); // sleep 1 sec
+  delay(100); // sleep 100ms
 }
-
 
 void set_curr_time(uint8_t h, uint8_t m, uint8_t s)
 {
@@ -130,28 +127,16 @@ void set_curr_time(uint8_t h, uint8_t m, uint8_t s)
   curr_h = h; curr_m = m; curr_s = s;
 }
 
-void get_time(uint8_t *h, uint8_t *m, uint8_t *s)
-{
-  *h = curr_h;
-  *m = curr_m;
-  *s = curr_s;
-
-  Serial.print((int)(*h));
-  Serial.print(":");
-  Serial.print((int)(*m));
-  Serial.print(":");
-  Serial.print((int)(*s));
-}
-
 int last_shown_h = -1;
 int last_shown_m = -1;
 void show_time(int h, int m)
 {
-  if (h > 24 || h < 0) return;
-  if (m > 60 || m < 0) return;
-
-  if (h == last_shown_h && m == last_show_m)
+  if (h == last_shown_h && m == last_shown_m)
     return;
+
+  // update current time from RTC in every hour
+  if (h != last_shown_h)
+    get_rtc(&curr_h, &curr_m, &curr_s);
 
   last_shown_h = h; last_shown_m = m;
 
@@ -212,34 +197,8 @@ void show_time(int h, int m)
     case 5: P_ON(4, 1); P_ON(4, 2); P_ON(4, 4); break;
   }
 
-  if (m_1 == 5)
-    P_ON(4, 3);
-}
-
-void test_mat(void)
-{
-  // blink all leds
-  for(int i = 0; i < 5; i++) {
-    for(int j = 0; j < 5; j++) {
-      P_ON(i, j);
-    }
-  }
-  delay(100); mat.clear(); delay(100); 
-
-  // row rotate
-  for(int i = 0; i < 5; i++) {
-    for(int j = 0; j < 5; j++) {
-      P_ON(i, j);
-    }
-    delay(100); mat.clear();
-  }
-
-  // column rotate
-  for(int i = 0; i < 5; i++) {
-    for(int j = 0; j < 5; j++) {
-      P_ON(j, i);
-    }
-    delay(100); mat.clear();
+  if (m_1 == 5) {
+    P_ON(4, 3); P_ON(4, 4);
   }
 }
 
@@ -255,5 +214,22 @@ void demo(void)
   }
 }
 
+void set_rtc(uint8_t h, uint8_t m, uint8_t s)
+{
+  rtc.setHour(h);
+  rtc.setMin(m);
+  rtc.setSec(s);
+
+  rtc.writeBurst();
+}
+
+void get_rtc(uint8_t *h, uint8_t *m, uint8_t *s)
+{
+  rtc.readBurst();
+
+  *h = rtc.getHour();
+  *m = rtc.getMin();
+  *s = rtc.getSec();
+}
 
 /* vim: set sw=2 et: */
