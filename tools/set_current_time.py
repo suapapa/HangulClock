@@ -19,7 +19,7 @@ packet = "#S"+stdout
 print packet
 
 import serial
-ser = serial.Serial("/dev/ttyUSB1", 9600, timeout=1)
+ser = serial.Serial("/dev/ttyUSB0", 9600, timeout=1)
 ser.write(packet)
 ser.flush()
 print ser.read(2)

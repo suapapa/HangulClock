@@ -4,9 +4,9 @@
 
 #define PIN_LED 13
 
-#define PIN_MAX7219_DATA 4  
-#define PIN_MAX7219_CLK  3
-#define PIN_MAX7219_LOAD 2
+#define PIN_MAX7219_DATA 16 //4
+#define PIN_MAX7219_CLK  15 //3
+#define PIN_MAX7219_LOAD 14 //2
 Matrix mat = Matrix(PIN_MAX7219_DATA, PIN_MAX7219_CLK, PIN_MAX7219_LOAD);
 
 int col[5] = {3, 1, 5, 4, 0};
@@ -40,7 +40,8 @@ void show_time(int, int);
   show_time(curr_h, curr_m); \
   timestamp = millis()
 
-HT1380 rtc = HT1380(7, 6, 5);
+//HT1380 rtc = HT1380(7, 6, 5);
+HT1380 rtc = HT1380(19, 18, 17);
 void set_rtc(uint8_t, uint8_t, uint8_t);
 void get_rtc(uint8_t *, uint8_t *, uint8_t *);
 
@@ -100,8 +101,9 @@ void loop(void)
       minute += (Serial.read() - '0');
       sec = 10 * (Serial.read() - '0');
       sec += (Serial.read() - '0');
-      set_curr_time(hour, minute, sec);
-      set_rtc(hour, minute, sec);
+      //set_curr_time(hour, minute, sec);
+      set_rtc((uint8_t)hour, (uint8_t)minute, (uint8_t)sec);
+      get_rtc(&curr_h, &curr_m, &curr_s);
       show_curr_time();
       Serial.println("OK");
     }
@@ -219,8 +221,16 @@ void set_rtc(uint8_t h, uint8_t m, uint8_t s)
   rtc.setHour(h);
   rtc.setMin(m);
   rtc.setSec(s);
-
+#if 0
+  rtc.setYear(8);
+  rtc.setMonth(8);
+  rtc.setDate(19);
+  rtc.setDay(3);
+  rtc.setWP(1);
+  delay(1000);
+#endif
   rtc.writeBurst();
+  delay(1000);
 }
 
 void get_rtc(uint8_t *h, uint8_t *m, uint8_t *s)
