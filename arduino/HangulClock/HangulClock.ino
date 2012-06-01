@@ -94,14 +94,18 @@ void setup(void)
     Serial.println("HELLO");
 }
 
+bool tick_tock = LOW;
 void loop(void)
 {
     unsigned long curr_millis = millis();
+
 
 #ifndef USE_HT1380_RTC
     if ((curr_millis - last_rtc_millis) >= 1000) {
         update_dummy_rtc();
         last_rtc_millis = curr_millis;
+        tick_tock = (tick_tock == HIGH ? LOW : HIGH);
+        digitalWrite(PIN_LED, tick_tock);
     }
 #endif
 
