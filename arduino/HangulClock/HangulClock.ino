@@ -106,7 +106,7 @@ void loop(void)
 #endif
 
     // update panel in every 1 min
-    if ((curr_millis - last_millis) >= 1000 * 60) {
+    if ((curr_millis - last_millis) >= 5 * 1000) {
         get_rtc();
         SHOW_CURR_TIME();
         last_millis = curr_millis;
@@ -161,6 +161,13 @@ int last_shown_h = -1;
 int last_shown_m = -1;
 void show_time(int h, int m)
 {
+#if 0
+    Serial.print("show_time: ");
+    Serial.print(h);
+    Serial.print(":");
+    Serial.println(m);
+#endif
+
     if (h == last_shown_h && m == last_shown_m)
         return;
 
@@ -245,8 +252,10 @@ void show_time(int h, int m)
         break;
     }
 
-    if (m == 0)
+    if (m == 0) {
+        REFRESH_PANEL();
         return;
+    }
 
     switch (m_10) {
     case 1:
