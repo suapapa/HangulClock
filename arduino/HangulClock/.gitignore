@@ -1,0 +1,5 @@
+.gitignore
+*.elf
+*.hex
+.*
+build/
