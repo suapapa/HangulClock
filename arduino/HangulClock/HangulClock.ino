@@ -1,245 +1,357 @@
-//#include <Sprite.h>
-#include <Matrix.h>
+// MAX7219, matrix driver
+#include <LedControl.h>
+
+#define PIN_MAX7219_DATA 5//16 //4
+#define PIN_MAX7219_CLK  6//15 //3
+#define PIN_MAX7219_LOAD 7//14 //2
+LedControl lc = LedControl(PIN_MAX7219_DATA,
+                           PIN_MAX7219_CLK,
+                           PIN_MAX7219_LOAD,
+                           1);
+
+
+
+byte panel[8] = {0, };
+
+// Fix shuffled row and column idx.
+#define R0 4
+#define R1 6
+#define R2 2
+#define R3 3
+#define R4 7
+#define C0 6
+#define C1 1
+#define C2 5
+#define C3 0
+#define C4 4
+byte r_table[5] = {R0, R1, R2, R3, R4};
+byte c_table[5] = {C0, C1, C2, C3, C4};
+
+#define _P_ON(_R, _C) panel[_R] |= (1 << _C)
+#define P_ON(_R, _C) _P_ON(R##_R, C##_C)
+#define REFRESH_PANEL() \
+  for (int i = 0; i < 8; i++) \
+    lc.setRow(0, i, panel[i])
+
+#define CLEAN_PANEL() \
+  lc.clearDisplay(0); \
+  memset(panel, 0x00, 8)
+
+
+#ifdef USE_HT1380_RTC
+// HT1380, RTC
 #include <HT1380.h>
+//HT1380 rtc = HT1380(7, 6, 5);
+HT1380 rtc = HT1380(19, 18, 17);
+#else
+unsigned long last_rtc_millis;
+void update_dummy_rtc(void);
+#endif
+
+
+uint8_t curr_h, curr_m, curr_s;
+void set_rtc(uint8_t, uint8_t, uint8_t);
+void get_rtc(void);
+
+unsigned long last_millis;
+void show_time(int, int);
+#define SHOW_CURR_TIME() show_time(curr_h, curr_m)
+
 
 #define PIN_LED 13
 
-#define PIN_MAX7219_DATA 16 //4
-#define PIN_MAX7219_CLK  15 //3
-#define PIN_MAX7219_LOAD 14 //2
-Matrix mat = Matrix(PIN_MAX7219_DATA, PIN_MAX7219_CLK, PIN_MAX7219_LOAD);
-
-int col[5] = {3, 1, 5, 4, 0};
-int row[5] = {7, 2, 6, 1, 5};
-#define _M_ON(M, R, C) M.write(row[R], col[C], HIGH)
-#define _M_OFF(M, R, C) M.write(row[R], col[C], LOW)
-
-#define ROTATE_PANEL_90 1
-#if ROTATE_PANEL_90
-#define M_ON(M, C, R) _M_ON(M, R, C)
-#define M_OFF(M, C, R) _M_OFF(M, R, C)
-#else
-#define M_ON(M, R, C) _M_ON(M, R, C)
-#define M_OFF(M, R, C) _M_OFF(M, R, C)
-#endif
-
-#define P_ON(R, C) M_ON(mat, R, C)
-#define P_OFF(R, C) M_OFF(mat, R, C)
-
-#define CLEAN_PANEL() \
-  mat.clear()
-
 void demo(void);
+void splash(void);
+void init_ips(void)
+{
+    Serial.println("Initing matrix driver...");
+    lc.shutdown(0, false);
+    lc.setIntensity(0, 15);
+    lc.clearDisplay(0);
 
-uint8_t curr_h, curr_m, curr_s;
-void set_curr_time(uint8_t, uint8_t, uint8_t);
-
-unsigned long timestamp;
-void show_time(int, int);
-#define show_curr_time() \
-  show_time(curr_h, curr_m); \
-  timestamp = millis()
-
-//HT1380 rtc = HT1380(7, 6, 5);
-HT1380 rtc = HT1380(19, 18, 17);
-void set_rtc(uint8_t, uint8_t, uint8_t);
-void get_rtc(uint8_t *, uint8_t *, uint8_t *);
+#ifdef USE_HT1380_RTC
+    Serial.println("Initing RTC...");
+    rtc.init();
+#endif
+}
 
 void setup(void)
 {
-  pinMode(PIN_LED, OUTPUT);
-  Serial.begin(9600);
-  mat.setBrightness(15); // 0 to 15
+    pinMode(PIN_LED, OUTPUT);
+    digitalWrite(PIN_LED, HIGH);
 
-  //test_mat();
+    Serial.begin(9600);
+    init_ips();
+    splash();
+    last_millis = millis();
+#ifndef USE_HT1380_RTC
+    set_rtc(10, 32, 45);
+#endif
+    get_rtc();
+    SHOW_CURR_TIME();
 
-  digitalWrite(PIN_LED, HIGH);
-  rtc.init();
-  digitalWrite(PIN_LED, LOW);
-
-  get_rtc(&curr_h, &curr_m, &curr_s);
-
-  show_curr_time();
+    digitalWrite(PIN_LED, LOW);
+    Serial.println("HELLO");
 }
 
 void loop(void)
 {
-  // update panel in every 1 sec
-  if ((millis() - timestamp) >= 1000) {
-    set_curr_time(curr_h, curr_m, curr_s + 1);
-    show_curr_time();
-  }
+    unsigned long curr_millis = millis();
 
-  // Serial commands
-  // #D for Demo
-  // #L<r><c> for turn on a LED in row r and column c
-  // #T<hh><mm> show given time to panel
-  // #S<hh><mm> set time
-  // #G<hh><mm> get time
-  if (Serial.available() > 1 && '#' == Serial.read()) {
-    char func = Serial.read();
-    int hour = 0;
-    int minute = 0;
-    int sec = 0;
-    delay(10); // wait enough for following chars
-    if (func == 'D') {          // Demo
-      demo();
-      Serial.println("OK");
-    } else if (func == 'G') {   // Get time
-      uint8_t h, m, s;
-      get_rtc(&h, &m, &s);
-      Serial.print((int)(h));
-      Serial.print(":");
-      Serial.print((int)(m));
-      Serial.print(":");
-      Serial.print((int)(s));
-      Serial.println("OK");
-    } else if (func == 'S') {   // Set time
-      hour = 10 * (Serial.read() - '0');
-      hour += (Serial.read() - '0');
-      minute = 10 * (Serial.read() - '0');
-      minute += (Serial.read() - '0');
-      sec = 10 * (Serial.read() - '0');
-      sec += (Serial.read() - '0');
-      //set_curr_time(hour, minute, sec);
-      set_rtc((uint8_t)hour, (uint8_t)minute, (uint8_t)sec);
-      get_rtc(&curr_h, &curr_m, &curr_s);
-      show_curr_time();
-      Serial.println("OK");
+#ifndef USE_HT1380_RTC
+    if ((curr_millis - last_rtc_millis) >= 1000) {
+        update_dummy_rtc();
+        last_rtc_millis = curr_millis;
     }
-  }
+#endif
 
-  delay(100); // sleep 100ms
-}
+    // update panel in every 1 min
+    if ((curr_millis - last_millis) >= 1000 * 60) {
+        get_rtc();
+        SHOW_CURR_TIME();
+        last_millis = curr_millis;
+    }
 
-void set_curr_time(uint8_t h, uint8_t m, uint8_t s)
-{
-  if (s >= 60) {
-    m += 1; s = 0;
-  }
+    // Serial commands
+    // #D for Demo
+    // #L<r><c> for turn on a LED in row r and column c
+    // #S<hh><mm><ss> set time
+    // #G get time
+    if (Serial.available() > 1 && '#' == Serial.read()) {
+        char func = Serial.read();
+        int hour = 0;
+        int minute = 0;
+        int sec = 0;
+        delay(10); // wait enough for following chars
+        if (func == 'D') {          // Demo
+            demo();
+        } else if (func == 'G') {   // Get time
+            get_rtc();
+            Serial.print((int)(curr_h));
+            Serial.print(":");
+            Serial.print((int)(curr_m));
+            Serial.print(":");
+            Serial.print((int)(curr_s));
+        } else if (func == 'S') {   // Set time
+            hour = 10 * (Serial.read() - '0');
+            hour += (Serial.read() - '0');
+            minute = 10 * (Serial.read() - '0');
+            minute += (Serial.read() - '0');
+            sec = 10 * (Serial.read() - '0');
+            sec += (Serial.read() - '0');
+            set_rtc((uint8_t)hour, (uint8_t)minute, (uint8_t)sec);
+            get_rtc();
+            SHOW_CURR_TIME();
+            last_millis = millis();
+        } else if (func == 'L') {
+            byte r = Serial.read() - '0';
+            byte c = Serial.read() - '0';
 
-  if (m >= 60) {
-    h += 1; m = 0;
-  }
+            CLEAN_PANEL();
+            _P_ON(r_table[r], c_table[c]);
+            REFRESH_PANEL();
+        }
+        Serial.println("OK");
+    }
 
-  if (h >= 24) {
-    h = 0; m = 0;
-  }
-
-  curr_h = h; curr_m = m; curr_s = s;
+    delay(100); // sleep 100ms
 }
 
 int last_shown_h = -1;
 int last_shown_m = -1;
 void show_time(int h, int m)
 {
-  if (h == last_shown_h && m == last_shown_m)
-    return;
+    if (h == last_shown_h && m == last_shown_m)
+        return;
 
-  // update current time from RTC in every hour
-  if (h != last_shown_h)
-    get_rtc(&curr_h, &curr_m, &curr_s);
+    // update current time from RTC in every hour
+    if (h != last_shown_h)
+        get_rtc();
 
-  last_shown_h = h; last_shown_m = m;
+    last_shown_h = h;
+    last_shown_m = m;
 
-  int m_10 = m / 10;
-  int m_1 = m % 10;
+    int m_10 = m / 10;
+    int m_1 = m % 10;
 
-  switch (m_1) {
-    case 1: case 2: case 3:
-      m_1 = 0; break;
-    case 4: case 5: case 6:
-      m_1 = 5; break;
-    case 7: case 8: case 9:
-      m_1 = 0; m_10 += 1; break;
-  }
+    switch (m_1) {
+    case 1 ... 3:
+        m_1 = 0;
+        break;
+    case 4 ... 6:
+        m_1 = 5;
+        break;
+    case 7 ... 9:
+        m_1 = 0;
+        m_10 += 1;
+        break;
+    }
 
-  if (m_10 >= 6) {
-    m_10 = 0;
-    h += 1;
-  }
+    if (m_10 >= 6) {
+        m_10 = 0;
+        h += 1;
+    }
 
-  CLEAN_PANEL();
+    CLEAN_PANEL();
 
-  if ((h == 0 || h == 24) && (m_10 + m_1) == 0) {
-    P_ON(3, 0); P_ON(3, 1);
-    return;
-  }
+    if ((h == 0 || h == 24) && (m_10 + m_1) == 0) {
+        P_ON(3, 0); P_ON(3, 1);
+        return;
+    }
 
-  if (h == 12 && (m_10 + m_1) == 0) {
-    P_ON(3, 1); P_ON(4, 1);
-    return;
-  }
+    if (h == 12 && (m_10 + m_1) == 0) {
+        P_ON(3, 1); P_ON(4, 1);
+        return;
+    }
 
-  if (h > 12) h -= 12;
-  switch(h) {
-    case 0: case 12:
-      P_ON(0, 0); P_ON(1, 0); P_ON(2, 4); break;
-    case 1: P_ON(0, 1); P_ON(2, 4); break;
-    case 2: P_ON(1, 0); P_ON(2, 4); break;
-    case 3: P_ON(0, 3); P_ON(2, 4); break;
-    case 4: P_ON(0, 4); P_ON(2, 4); break;
-    case 5: P_ON(0, 2); P_ON(1, 2); P_ON(2, 4); break;
-    case 6: P_ON(1, 1); P_ON(1, 2); P_ON(2, 4); break;
-    case 7: P_ON(1, 3); P_ON(1, 4); P_ON(2, 4); break;
-    case 8: P_ON(2, 0); P_ON(2, 1); P_ON(2, 4); break;
-    case 9: P_ON(2, 2); P_ON(2, 3); P_ON(2, 4); break;
-    case 10: P_ON(0, 0); P_ON(2, 4); break;
-    case 11: P_ON(0, 0); P_ON(0, 1); P_ON(2, 4); break;
-  }
+    if (h > 12) h -= 12;
+    switch (h) {
+    case 0:
+    case 12:
+        P_ON(0, 0); P_ON(1, 0); P_ON(2, 4);
+        break;
+    case 1:
+        P_ON(0, 1); P_ON(2, 4);
+        break;
+    case 2:
+        P_ON(1, 0); P_ON(2, 4);
+        break;
+    case 3:
+        P_ON(0, 3); P_ON(2, 4);
+        break;
+    case 4:
+        P_ON(0, 4); P_ON(2, 4);
+        break;
+    case 5:
+        P_ON(0, 2); P_ON(1, 2); P_ON(2, 4);
+        break;
+    case 6:
+        P_ON(1, 1); P_ON(1, 2); P_ON(2, 4);
+        break;
+    case 7:
+        P_ON(1, 3); P_ON(1, 4); P_ON(2, 4);
+        break;
+    case 8:
+        P_ON(2, 0); P_ON(2, 1); P_ON(2, 4);
+        break;
+    case 9:
+        P_ON(2, 2); P_ON(2, 3); P_ON(2, 4);
+        break;
+    case 10:
+        P_ON(0, 0); P_ON(2, 4);
+        break;
+    case 11:
+        P_ON(0, 0); P_ON(0, 1); P_ON(2, 4);
+        break;
+    }
 
-  if (m == 0)
-    return;
+    if (m == 0)
+        return;
 
-  switch (m_10) {
-    case 1: P_ON(3, 4); P_ON(4, 4); break;
-    case 2: P_ON(3, 2); P_ON(4, 2); P_ON(4, 4); break;
-    case 3: P_ON(3, 3); P_ON(3, 4); P_ON(4, 4); break;
-    case 4: P_ON(4, 0); P_ON(4, 2); P_ON(4, 4); break;
-    case 5: P_ON(4, 1); P_ON(4, 2); P_ON(4, 4); break;
-  }
+    switch (m_10) {
+    case 1:
+        P_ON(3, 4); P_ON(4, 4);
+        break;
+    case 2:
+        P_ON(3, 2); P_ON(4, 2); P_ON(4, 4);
+        break;
+    case 3:
+        P_ON(3, 3); P_ON(3, 4); P_ON(4, 4);
+        break;
+    case 4:
+        P_ON(4, 0); P_ON(4, 2); P_ON(4, 4);
+        break;
+    case 5:
+        P_ON(4, 1); P_ON(4, 2); P_ON(4, 4);
+        break;
+    }
 
-  if (m_1 == 5) {
-    P_ON(4, 3); P_ON(4, 4);
-  }
+    if (m_1 == 5) {
+        P_ON(4, 3); P_ON(4, 4);
+    }
+
+    REFRESH_PANEL();
+}
+
+void splash(void)
+{
+    for (int r = 0; r < 5; r++) {
+        for (int c = 0; c < 5; c++) {
+            CLEAN_PANEL();
+            _P_ON(r_table[r], c_table[c]);
+            REFRESH_PANEL();
+            delay(50);
+        }
+    }
+    CLEAN_PANEL();
 }
 
 void demo(void)
 {
-  for(int h = 0; h < 24; h++) {
-    for(int m = 0; m < 60; m+=5) {
-      digitalWrite(PIN_LED, HIGH);
-      show_time(h, m);
-      digitalWrite(PIN_LED, LOW);
-      delay(500); // 1sec
+    for (int h = 0; h < 24; h++) {
+        for (int m = 0; m < 60; m += 5) {
+            digitalWrite(PIN_LED, HIGH);
+            show_time(h, m);
+            digitalWrite(PIN_LED, LOW);
+            delay(500); // 1sec
+        }
     }
-  }
+    CLEAN_PANEL();
 }
 
+#ifdef USE_HT1380_RTC
 void set_rtc(uint8_t h, uint8_t m, uint8_t s)
 {
-  rtc.setHour(h);
-  rtc.setMin(m);
-  rtc.setSec(s);
+    rtc.setHour(h);
+    rtc.setMin(m);
+    rtc.setSec(s);
 #if 0
-  rtc.setYear(8);
-  rtc.setMonth(8);
-  rtc.setDate(19);
-  rtc.setDay(3);
-  rtc.setWP(1);
-  delay(1000);
+    rtc.setYear(8);
+    rtc.setMonth(8);
+    rtc.setDate(19);
+    rtc.setDay(3);
+    rtc.setWP(1);
+    delay(1000);
 #endif
-  rtc.writeBurst();
-  delay(1000);
+    rtc.writeBurst();
+    delay(1000);
 }
 
-void get_rtc(uint8_t *h, uint8_t *m, uint8_t *s)
+void get_rtc(void)
 {
-  rtc.readBurst();
-
-  *h = rtc.getHour();
-  *m = rtc.getMin();
-  *s = rtc.getSec();
+    rtc.readBurst();
+    curr_h = rtc.getHour();
+    curr_m = rtc.getMin();
+    curr_s = rtc.getSec();
 }
+#else
+void set_rtc(uint8_t h, uint8_t m, uint8_t s)
+{
+    curr_h = h;
+    curr_m = m;
+    curr_s = s;
+    last_rtc_millis = millis();
+}
+
+void get_rtc(void)
+{
+
+}
+
+void update_dummy_rtc(void)
+{
+    curr_s += 1;
+    if (curr_s >= 60) {
+        curr_s = 0; curr_m += 1;
+    }
+    if (curr_m >= 60) {
+        curr_m = 0; curr_h += 1;
+    }
+    if (curr_h >= 24) {
+        curr_h = 0;
+    }
+}
+
+#endif
 
 /* vim: set sw=2 et: */
