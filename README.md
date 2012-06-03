@@ -11,6 +11,12 @@ Open-source SW and HW for HangulClock.
     자정이삼십
     사오십오분
 
+## Arduino Sketch ##
+
+Need update submoduls HT1380 and LedControl to build the sketch;
+
+    $ git submodule update
+
 ## Links ##
 
 - [Arduino DIY contest of Make Korea in 2011](http://www.make.co.kr/?p=520) (Korean only)
