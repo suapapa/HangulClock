@@ -54,6 +54,8 @@ void set_rtc(uint8_t, uint8_t, uint8_t);
 void get_rtc(void);
 
 unsigned long last_millis;
+unsigned long last_demo_millis;
+
 void show_time(int, int);
 #define SHOW_CURR_TIME() show_time(curr_h, curr_m)
 
@@ -84,8 +86,9 @@ void setup(void)
     init_ips();
     splash();
     last_millis = millis();
+    last_demo_millis = millis();
 #ifndef USE_HT1380_RTC
-    set_rtc(10, 32, 45);
+    set_rtc(10, 5, 30);
 #endif
     get_rtc();
     SHOW_CURR_TIME();
@@ -128,7 +131,16 @@ void loop(void)
         int sec = 0;
         delay(10); // wait enough for following chars
         if (func == 'D') {          // Demo
-            demo();
+            byte demo_no = Serial.read() - '0';
+            switch(demo_no) {
+              case 1:
+                demo();
+                break;
+              default:
+                splash();
+                break;
+            }
+            SHOW_CURR_TIME();
         } else if (func == 'G') {   // Get time
             get_rtc();
             Serial.print((int)(curr_h));
@@ -165,15 +177,16 @@ int last_shown_h = -1;
 int last_shown_m = -1;
 void show_time(int h, int m)
 {
+    if (h == last_shown_h && m == last_shown_m)
+        return;
+
 #if 0
     Serial.print("show_time: ");
     Serial.print(h);
     Serial.print(":");
     Serial.println(m);
+    splash();
 #endif
-
-    if (h == last_shown_h && m == last_shown_m)
-        return;
 
     // update current time from RTC in every hour
     if (h != last_shown_h)
