@@ -148,7 +148,7 @@
 <wire x1="85" y1="85" x2="85" y2="82.5" width="0.8128" layer="21"/>
 <wire x1="12.5" y1="85" x2="10" y2="85" width="0.8128" layer="21"/>
 <wire x1="10" y1="85" x2="10" y2="82.5" width="0.8128" layer="21"/>
-<text x="12.5" y="87.5" size="1.778" layer="1" font="vector">HangulClock 5x5 matrix</text>
+<text x="12.5" y="87.5" size="2.54" layer="1" font="vector">5x5 matrix</text>
 </plain>
 <libraries>
 <library name="led">
@@ -511,6 +511,9 @@ design rules under a new name.</description>
 <element name="U$3" library="holes" package="3,0" value="" x="5" y="5"/>
 <element name="U$4" library="holes" package="3,0" value="" x="90" y="5"/>
 <element name="JP1" library="pinhead" package="1X10" value="" x="47.5" y="5" rot="MR180"/>
+<element name="U$5" library="holes" package="3,0" value="" x="47.5" y="90"/>
+<element name="U$6" library="holes" package="3,0" value="" x="5" y="47.5"/>
+<element name="U$7" library="holes" package="3,0" value="" x="90" y="47.5"/>
 </elements>
 <signals>
 <signal name="K5">
