@@ -25,10 +25,15 @@ t = ''.join(panelString.split())
 panelChars = list(t.decode('utf-8'))
 
 DPI = 300
-cSize = 20 # 20mm for W & H of one character
+cSizeWithMargin = 15 # 20mm for W & H of one character
 
-cPix = int((DPI * 20 )/25.4) # 1 inch == 25.4 mm
-panelSize = (cPix*5, cPix*5) # 236 == 20mm on 300dpi
+cPix = int((DPI * cSizeWithMargin )/25.4) # 1 inch == 25.4 mm
+cSize = cPix*5
+panelMarginX = cPix
+panelMarginY = cPix
+panelSize = (cSize+panelMarginX*2, cSize+panelMarginY*2) # 236 == 20mm on 300dpi
+
+print "panelSize =", panelSize
 
 image = Image.new('RGB', panelSize)
 draw = ImageDraw.Draw(image)
@@ -39,26 +44,29 @@ fontPath = r'/usr/share/fonts/truetype/nanum/NanumMyeongjo.ttf'
 
 # To find proper fontsize fited-in given dimention
 fontSize = 0
-for i in range(32, 2000):
+for i in range(12, 2000):
     font = ImageFont.truetype(fontPath, i, encoding="unic")
     text = "한".decode('utf-8')
     textSize = font.getsize(text)
-    if textSize[0] > 236 or textSize[1] > 236:
-        print textSize, i
+    if textSize[0] > cPix or textSize[1] > cPix:
+        print "Font size", textSize, i
         fontSize = i - 10
         break
 
 font = ImageFont.truetype(fontPath, fontSize, encoding="unic")
 
+print "cPix =", cPix
 for y in range(5):
     for x in range(5):
         panelChar = panelChars[x+(y*5)]
         charSize = font.getsize(panelChar)
-        xMargin = (236 - charSize[0])/2
-        yMargin = (236 - charSize[1])/2
+        xMargin = (cPix - charSize[0])/2
+        yMargin = (cPix - charSize[1])/2
         #print panelChar.encode('utf-8'), charSize, xMargin, yMargin
-        draw.text((x*236+xMargin, y*236+yMargin), panelChar, font=font)
+        draw.text((x*cPix+xMargin+panelMarginX, y*cPix+yMargin+panelMarginY),
+                  panelChar, font=font)
 
+# mirror it to toner transfer
 image = ImageOps.mirror(image)
 image.save('panel_%s.png'%os.path.basename(fontPath), dpi=(DPI, DPI))
 
