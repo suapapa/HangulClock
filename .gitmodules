@@ -1,9 +1,6 @@
 [submodule "arduino/HangulClock/libs/LedControl"]
 	path = arduino/HangulClock/libs/LedControl
 	url = https://github.com/suapapa/arduino_library_ledcontrol
-[submodule "arduino/HangulClock/libs/HT1380"]
-	path = arduino/HangulClock/libs/HT1380
-	url = https://github.com/suapapa/arduino_library_ht1380
 [submodule "arduino/HangulClock/libs/ds1302"]
 	path = arduino/HangulClock/libs/ds1302
 	url = https://github.com/msparks/arduino-ds1302
