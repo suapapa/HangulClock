@@ -37,17 +37,15 @@ byte c_table[5] = {C0, C1, C2, C3, C4};
   lc.clearDisplay(0); \
   memset(panel, 0x00, 8)
 
+#define USE_DS1302_RTC
+#ifdef USE_DS1302_RTC
+#include <DS1302.h>
+const int kCePin   = 8;  // Chip Enable
+const int kIoPin   = 9;  // Input/Output
+const int kSclkPin = 10;  // Serial Clock
 
-#ifdef USE_HT1380_RTC
-// HT1380, RTC
-#include <HT1380.h>
-//HT1380 rtc = HT1380(7, 6, 5);
-HT1380 rtc = HT1380(19, 18, 17);
-#else
-unsigned long last_rtc_millis;
-void update_dummy_rtc(void);
+DS1302 rtc(kCePin, kIoPin, kSclkPin);
 #endif
-
 
 uint8_t curr_h, curr_m, curr_s;
 void set_rtc(uint8_t, uint8_t, uint8_t);
@@ -62,16 +60,24 @@ void show_time(int, int);
 
 void demo(void);
 void splash(void);
-void init_ips(void)
+void init_ip(void)
 {
     Serial.println("Initing matrix driver...");
     lc.shutdown(0, false);
     lc.setIntensity(0, 15);
     lc.clearDisplay(0);
 
-#ifdef USE_HT1380_RTC
+#ifdef USE_DS1302_RTC
     Serial.println("Initing RTC...");
-    rtc.init();
+    rtc.writeProtect(false);
+    rtc.halt(false);
+
+    // Make a new time object to set the date and time.
+    // Sunday, September 22, 2013 at 01:38:50.
+    Time t(2013, 9, 22, 1, 38, 50, Time::kSunday);
+
+    // Set the time and date on the chip.
+    rtc.time(t);
 #endif
 }
 
@@ -81,12 +87,10 @@ void setup(void)
     digitalWrite(PIN_LED, HIGH);
 
     Serial.begin(9600);
-    init_ips();
+    init_ip();
     splash();
     last_millis = millis();
-#ifndef USE_HT1380_RTC
-    set_rtc(10, 32, 45);
-#endif
+
     get_rtc();
     SHOW_CURR_TIME();
 
@@ -98,16 +102,6 @@ bool tick_tock = LOW;
 void loop(void)
 {
     unsigned long curr_millis = millis();
-
-
-#ifndef USE_HT1380_RTC
-    if ((curr_millis - last_rtc_millis) >= 1000) {
-        update_dummy_rtc();
-        last_rtc_millis = curr_millis;
-        tick_tock = (tick_tock == HIGH ? LOW : HIGH);
-        digitalWrite(PIN_LED, tick_tock);
-    }
-#endif
 
     // update panel in every 1 min
     if ((curr_millis - last_millis) >= 5 * 1000) {
@@ -312,59 +306,25 @@ void demo(void)
     CLEAN_PANEL();
 }
 
-#ifdef USE_HT1380_RTC
+#ifdef USE_DS1302_RTC
+//uint8_t curr_h, curr_m, curr_s;
 void set_rtc(uint8_t h, uint8_t m, uint8_t s)
 {
-    rtc.setHour(h);
-    rtc.setMin(m);
-    rtc.setSec(s);
-#if 0
-    rtc.setYear(8);
-    rtc.setMonth(8);
-    rtc.setDate(19);
-    rtc.setDay(3);
-    rtc.setWP(1);
-    delay(1000);
-#endif
-    rtc.writeBurst();
-    delay(1000);
-}
+    rtc.hour(h);
+    rtc.minutes(m);
+    rtc.seconds(s);
 
-void get_rtc(void)
-{
-    rtc.readBurst();
-    curr_h = rtc.getHour();
-    curr_m = rtc.getMin();
-    curr_s = rtc.getSec();
-}
-#else
-void set_rtc(uint8_t h, uint8_t m, uint8_t s)
-{
     curr_h = h;
     curr_m = m;
     curr_s = s;
-    last_rtc_millis = millis();
 }
 
 void get_rtc(void)
 {
-
+    curr_h = rtc.hour();
+    curr_m = rtc.minutes();
+    curr_s = rtc.seconds();
 }
-
-void update_dummy_rtc(void)
-{
-    curr_s += 1;
-    if (curr_s >= 60) {
-        curr_s = 0; curr_m += 1;
-    }
-    if (curr_m >= 60) {
-        curr_m = 0; curr_h += 1;
-    }
-    if (curr_h >= 24) {
-        curr_h = 0;
-    }
-}
-
 #endif
 
-/* vim: set sw=2 et: */
+/* vim: set sw=4 et: */
