@@ -1,8 +1,10 @@
 ## HangulClock - 한글시계 ##
 
+**!! 새소식 !!** 라이센스를 맺고 대디스랩에서 제작한 한글시계가 판매 중 입니다. [펀샵 판매 링크](http://www.funshop.co.kr/goods/detail/35070)
+
 ![HangulClock](https://lh3.googleusercontent.com/-pJXQXDfwuzw/TgtjowkEIzI/AAAAAAAAAZw/cv1DTU4nzRQ/w800-h533-no/IMGP9360.jpg)
 
-한글시계는 오픈소스(SW/HW) 입니다. 
+한글시계는 오픈소스(SW/HW) 입니다.
 
 - [Make Korea](http://www.make.co.kr)의 2011 컨테스트 수상 작 (1등 없는 2등)
 - [A Word Clock](http://www.instructables.com/id/A-Word-Clock/) `drj113`의 작품에서 영감을 얻었습니다..
