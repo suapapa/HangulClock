@@ -17,8 +17,8 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 
 ## 링크 ##
 
-- [아두이노 DIY 컨테스트 of Make Korea in 2011 수상](http://www.make.co.kr/?p=520) (Korean only)
-- [한글시계 뒷 이야기](http://web.suapapa.net:8080/wordpress/?p=493) (한글)
+- 아두이노 DIY 컨테스트 of Make Korea in 2011 수상
+- [한글시계 뒷 이야기](http://suapapas-blog.blogspot.kr/2011/11/blog-post.html) (한글)
 
 - [소스코드](https://github.com/suapapa/HangulClock)
 - [사진](https://picasaweb.google.com/118040095502884745897/KoreanWordClockWithArduino#)
