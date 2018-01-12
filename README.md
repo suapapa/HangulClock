@@ -1,7 +1,5 @@
 ## HangulClock - 한글시계 ##
 
-**!! 새소식 !!** 라이센스를 맺고 [대디스랩](http://www.daddyslab.com/)에서 제작한 한글시계가 판매 중 입니다. [펀샵 판매 링크](http://www.funshop.co.kr/goods/detail/35070)
-
 ![HangulClock](https://lh3.googleusercontent.com/-pJXQXDfwuzw/TgtjowkEIzI/AAAAAAAAAZw/cv1DTU4nzRQ/w800-h533-no/IMGP9360.jpg)
 
 한글시계는 오픈소스(SW/HW) 입니다.
