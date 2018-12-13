@@ -21,6 +21,7 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 - [소스코드](https://github.com/suapapa/HangulClock)
 - [사진](https://picasaweb.google.com/118040095502884745897/KoreanWordClockWithArduino#)
 - [데모 비디오](http://youtu.be/CJosltwJq8s)
+- [다른 한글시계들](http://hangulclocks.suapapa.net)
 
 ## 라이센스 ##
 
