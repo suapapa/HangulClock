@@ -25,4 +25,23 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 
 ## 라이센스 ##
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ko"><img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a><br /><span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Homin Lee</span>에 의해 작성된 <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Hangul Clock</span> 은(는) <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.ko">크리에이티브 커먼즈 저작자표시-비영리-동일조건변경허락 3.0 Unported 라이선스</a>에 따라 이용할 수 있습니다.
+## 5x5 한글 조합
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />이 저작물은 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">크리에이티브 커먼즈 저작자표시 4.0 국제 라이선스</a>에 따라 이용할 수 있습니다.
+
+## 소스코드 (스케치 및 스크립트)
+
+    Copyright (C) 2011-2020 Homin Lee <homin.lee@suapapa.net>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
