@@ -1,0 +1,8 @@
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/suapapa/go_devices v1.0.2 h1:YM14stmMHpqEO+FdmNBOlV+xbJP0+rdHgX6Mt18PQbs=
+github.com/suapapa/go_devices v1.0.2/go.mod h1:vm69xkZTtS1HIGH/XL5d+wHULNLHApildEQLEjXJ5Zo=
+github.com/suapapa/go_devices v1.0.3 h1:ZzFHHMPW/jzm4XnnF+2fP0+D1kRsVxfQkRz3KwlSBfI=
+github.com/suapapa/go_devices v1.0.3/go.mod h1:vm69xkZTtS1HIGH/XL5d+wHULNLHApildEQLEjXJ5Zo=
+periph.io/x/periph v3.6.3+incompatible h1:li7kK6fLqToF707bgEFGKRyVIuQLxeHAgv6fSnJZ9p0=
+periph.io/x/periph v3.6.3+incompatible/go.mod h1:EWr+FCIU2dBWz5/wSWeiIUJTriYv9v2j2ENBmgYyy7Y=
