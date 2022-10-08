@@ -1,0 +1,13 @@
+[Unit]
+Description=hangulclock
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+ExecStart=/home/orangepi/sbc_hangulclock
+
+[Install]
+WantedBy=multi-user.target
