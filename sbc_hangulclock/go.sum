@@ -1,8 +1,11 @@
+github.com/jonboulle/clockwork v0.2.2 h1:UOGuzwb1PwsrDAObMuhUnj0p5ULPj8V/xJ7Kx9qUBdQ=
+github.com/jonboulle/clockwork v0.2.2/go.mod h1:Pkfl5aHPm1nk2H9h0bjmnJD/BcgbGXUBGnn1kMkgxc8=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-github.com/suapapa/go_devices v1.0.2 h1:YM14stmMHpqEO+FdmNBOlV+xbJP0+rdHgX6Mt18PQbs=
-github.com/suapapa/go_devices v1.0.2/go.mod h1:vm69xkZTtS1HIGH/XL5d+wHULNLHApildEQLEjXJ5Zo=
-github.com/suapapa/go_devices v1.0.3 h1:ZzFHHMPW/jzm4XnnF+2fP0+D1kRsVxfQkRz3KwlSBfI=
-github.com/suapapa/go_devices v1.0.3/go.mod h1:vm69xkZTtS1HIGH/XL5d+wHULNLHApildEQLEjXJ5Zo=
-periph.io/x/periph v3.6.3+incompatible h1:li7kK6fLqToF707bgEFGKRyVIuQLxeHAgv6fSnJZ9p0=
-periph.io/x/periph v3.6.3+incompatible/go.mod h1:EWr+FCIU2dBWz5/wSWeiIUJTriYv9v2j2ENBmgYyy7Y=
+github.com/suapapa/go_devices v1.1.0 h1:btrEIT0by0Y+kI/j/6k0gsLqJQS3DY2ch2ZLIe+pDkQ=
+github.com/suapapa/go_devices v1.1.0/go.mod h1:WEJu3ZEqxU4QnNVCtfMs9fOZtKrlpi4eM7A0oYTWEK8=
+periph.io/x/conn/v3 v3.6.10 h1:gwU4ssmZkq1D/uz8hU91i/COo2c9DrRaS4PJZBbCd+c=
+periph.io/x/conn/v3 v3.6.10/go.mod h1:UqWNaPMosWmNCwtufoTSTTYhB2wXWsMRAJyo1PlxO4Q=
+periph.io/x/d2xx v0.0.4/go.mod h1:38Euaaj+s6l0faIRHh32a+PrjXvxFTFkPBEQI0TKg34=
+periph.io/x/host/v3 v3.7.2 h1:rCAUxkzy2xrzh18HP2AoVwTL/fEKqmcJ1icsZQGM58Q=
+periph.io/x/host/v3 v3.7.2/go.mod h1:nHMlzkPwmnHyP9Tn0I8FV+e0N3K7TjFXLZkIWzAicog=

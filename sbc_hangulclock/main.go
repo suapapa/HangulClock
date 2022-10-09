@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/suapapa/go_devices/max7219"
-	"periph.io/x/periph/conn/spi/spireg"
-	"periph.io/x/periph/host"
+	"periph.io/x/conn/v3/spi/spireg"
+	"periph.io/x/host/v3"
 )
 
 var (
