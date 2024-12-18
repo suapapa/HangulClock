@@ -1,4 +1,4 @@
-module github.com/suapapa/HangulClock/sbc_hangulclock
+module github.com/suapapa/HangulClock/go_hangulclock
 
 go 1.19
 
