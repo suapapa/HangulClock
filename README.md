@@ -42,4 +42,4 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 
 아두이노 스케치와, 고 프로그램의 라이선스가 각각 다릅니다. 각각의 폴더에서 확인하세요.
 - Arduino Sketch: [ardino/HangulClock/LICENSE](arduino/HangulClock/LICENSE)
-- Go program: [sbc_hangulclock/LICENSE](sbc_hangulclock/LICENSE)
+- Go program: [go_hangulclock/LICENSE](go_hangulclock/LICENSE)
