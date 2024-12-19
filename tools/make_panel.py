@@ -15,12 +15,13 @@ from PIL import ImageFont, ImageDraw, ImageOps
 
 def make_panel(
         charSquareSizeMM = 33,
-        charMargin = 80,
+        charMarginMM = 10,
         panelMarginMM = 2.5,
-        drawXOffset = 0,
-        drawYOffset = 0,
+        drawXOffsetMM = 0,
+        drawYOffsetMM = 0,
         DPI = 300,
         fontPath = r'./Hakgyoansim Byeolbichhaneul TTF B.ttf',
+        flip = False,
     ):
     panelString = '''
     열한다세네
@@ -34,10 +35,12 @@ def make_panel(
 
     cPix = int((DPI * charSquareSizeMM )/25.4) # 1 inch == 25.4 mm
     cSize = cPix*5
-    panelMargin = 2.5
     panelMarginX = int((DPI * panelMarginMM )/25.4)
     panelMarginY = int((DPI * panelMarginMM )/25.4)
     panelSize = (cSize+panelMarginX*2, cSize+panelMarginY*2) # 236 == 20mm on 300dpi
+    charMargin = int((DPI * charMarginMM )/25.4)
+    drawXOffset = int((DPI * drawXOffsetMM )/25.4)
+    drawYOffset = int((DPI * drawYOffsetMM )/25.4)
 
     print(f"panelSize = {panelSize}")
 
@@ -72,10 +75,12 @@ def make_panel(
             )
             
     # mirror it to toner transfer
-    image = ImageOps.mirror(image)
+    if flip:
+        image = ImageOps.mirror(image)
+
     image.save(f'panel_{os.path.basename(fontPath)}.png', dpi=(DPI, DPI))
 
 if __name__ == '__main__':
-    make_panel(drawYOffset=-30)
+    make_panel(drawYOffsetMM=0, fontPath=r'./SOYO Maple Bold.ttf', flip=True)
 
 # vim: et sw=4 fenc=utf-8:
