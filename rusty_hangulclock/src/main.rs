@@ -1,8 +1,12 @@
 use chrono::prelude::*;
+use embedded_hal::spi::MODE_3;
 use esp_idf_svc::hal::gpio::*;
 use esp_idf_svc::hal::i2c::*;
 use esp_idf_svc::hal::peripherals::Peripherals;
 use esp_idf_svc::hal::prelude::*;
+use esp_idf_svc::hal::spi::{
+    config::Config as SpiConfig, config::DriverConfig as SpiDriverConfig, SpiBusDriver, SpiDriver,
+};
 use esp_idf_svc::hal::task::block_on;
 use esp_idf_svc::sntp;
 use esp_idf_svc::timer::EspTaskTimerService;
@@ -13,6 +17,7 @@ use sh1106::{
     prelude::{GraphicsMode as Sh1106GM, I2cInterface},
     Builder as Sh1106Builder,
 };
+use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 use std::time;
 
 const SSID: &str = env!("WIFI_SSID");
@@ -21,14 +26,16 @@ const PASSWORD: &str = env!("WIFI_PASS");
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
+    info!("Hello, world!");
 
     let p = Peripherals::take()?;
 
     let p_oled_sda = p.pins.gpio7;
     let p_oled_scl = p.pins.gpio9;
     let p_oled_res = p.pins.gpio3;
-
-    info!("Hello, world!");
+    let p_dotstar_sclk = p.pins.gpio34;
+    let p_dotstar_mosi = p.pins.gpio35;
+    let p_dotstar_spi = p.spi2;
 
     let sys_loop = EspSystemEventLoop::take()?;
     let timer_service = EspTaskTimerService::new()?;
@@ -49,15 +56,38 @@ fn main() -> anyhow::Result<()> {
     let mut disp: Sh1106GM<_> = Sh1106Builder::new().connect_i2c(i2c).into();
     disp.init().unwrap();
     disp.flush().unwrap();
-
     draw_text(&mut disp, "Hello,\nworld!")?;
+
+    let mut spi_driver = SpiDriver::new(
+        p_dotstar_spi,
+        p_dotstar_sclk,
+        p_dotstar_mosi,
+        AnyIOPin::none(),
+        &SpiDriverConfig::new(),
+    )?;
+    let spi_config = SpiConfig::new().baudrate(26.MHz().into()).data_mode(MODE_3);
+    let spi_bus = SpiBusDriver::new(&mut spi_driver, &spi_config)?;
+    let mut dotstar = apa102_spi::Apa102::new(spi_bus);
+
+    const LED_NUM: usize = 25;
+    let mut dotstar_data = [RGB8::default(); LED_NUM];
+    let mut hue: u16 = 0;
+    for i in 0..LED_NUM {
+        let color = hsv2rgb(Hsv {
+            hue: hue as u8,
+            sat: 255,
+            val: 32,
+        });
+        dotstar_data[i] = color;
+        hue = (hue + 256 / LED_NUM as u16) % 256;
+    }
+    dotstar.write(gamma(dotstar_data.iter().cloned())).unwrap();
 
     let mut wifi = AsyncWifi::wrap(
         EspWifi::new(p.modem, sys_loop.clone(), Some(nvs))?,
         sys_loop,
         timer_service,
     )?;
-
     block_on(connect_wifi(&mut wifi))?;
 
     let sntp = sntp::EspSntp::new_default().expect("Failed to create SNTP");
