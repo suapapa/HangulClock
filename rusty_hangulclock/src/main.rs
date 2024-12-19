@@ -65,7 +65,7 @@ fn main() -> anyhow::Result<()> {
         AnyIOPin::none(),
         &SpiDriverConfig::new(),
     )?;
-    let spi_config = SpiConfig::new().baudrate(26.MHz().into()).data_mode(MODE_3);
+    let spi_config = SpiConfig::new().baudrate(3.MHz().into()).data_mode(MODE_3);
     let spi_bus = SpiBusDriver::new(&mut spi_driver, &spi_config)?;
     let mut dotstar = apa102_spi::Apa102::new(spi_bus);
 
@@ -111,6 +111,9 @@ fn main() -> anyhow::Result<()> {
             &mut disp,
             &datetime_kst.format("%Y-%m-%d\n%H:%M:%S").to_string(),
         )?;
+        let h := datetime_kst.hour();
+        let m := datetime_kst.minute();
+
         std::thread::sleep(time::Duration::from_secs(1));
     }
 }
