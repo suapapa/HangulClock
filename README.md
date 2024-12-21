@@ -13,7 +13,7 @@
 
 Build for ARM64 SBCs:
 
-    $ cd sbc_hangulclock
+    $ cd go_hangulclock
     $ GOARCH=arm64 GOOS=linux go build
 
 Then, install binary and system service config by reference `deploy.sh`

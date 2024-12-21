@@ -1,3 +1,5 @@
+mod panel;
+
 use chrono::prelude::*;
 use embedded_hal::spi::MODE_3;
 use esp_idf_svc::hal::gpio::*;
@@ -17,7 +19,7 @@ use sh1106::{
     prelude::{GraphicsMode as Sh1106GM, I2cInterface},
     Builder as Sh1106Builder,
 };
-use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
+// use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 use std::time;
 
 const SSID: &str = env!("WIFI_SSID");
@@ -55,6 +57,8 @@ fn main() -> anyhow::Result<()> {
     )?;
     let mut disp: Sh1106GM<_> = Sh1106Builder::new().connect_i2c(i2c).into();
     disp.init().unwrap();
+    disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180)
+        .unwrap();
     disp.flush().unwrap();
     draw_text(&mut disp, "Hello,\nworld!")?;
 
@@ -68,20 +72,7 @@ fn main() -> anyhow::Result<()> {
     let spi_config = SpiConfig::new().baudrate(3.MHz().into()).data_mode(MODE_3);
     let spi_bus = SpiBusDriver::new(&mut spi_driver, &spi_config)?;
     let mut dotstar = apa102_spi::Apa102::new(spi_bus);
-
-    const LED_NUM: usize = 25;
-    let mut dotstar_data = [RGB8::default(); LED_NUM];
-    let mut hue: u16 = 0;
-    for i in 0..LED_NUM {
-        let color = hsv2rgb(Hsv {
-            hue: hue as u8,
-            sat: 255,
-            val: 32,
-        });
-        dotstar_data[i] = color;
-        hue = (hue + 256 / LED_NUM as u16) % 256;
-    }
-    dotstar.write(gamma(dotstar_data.iter().cloned())).unwrap();
+    panel::welcome(&mut dotstar);
 
     let mut wifi = AsyncWifi::wrap(
         EspWifi::new(p.modem, sys_loop.clone(), Some(nvs))?,
@@ -111,8 +102,9 @@ fn main() -> anyhow::Result<()> {
             &mut disp,
             &datetime_kst.format("%Y-%m-%d\n%H:%M:%S").to_string(),
         )?;
-        let h := datetime_kst.hour();
-        let m := datetime_kst.minute();
+        let h: u8 = datetime_kst.hour() as u8;
+        let m: u8 = datetime_kst.minute() as u8;
+        panel::show_time(&mut dotstar, h, m);
 
         std::thread::sleep(time::Duration::from_secs(1));
     }
