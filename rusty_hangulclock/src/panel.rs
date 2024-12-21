@@ -40,6 +40,7 @@ pub fn show_time<SPI>(panel: &mut Apa102<SPI>, h: u8, m: u8)
 where
     SPI: embedded_hal::spi::SpiBus,
 {
+    let mut h = h;
     let mut m10 = m / 10;
     let mut m1 = m % 10;
     match m1 {
@@ -48,6 +49,10 @@ where
         7 | 8 | 9 => {
             m1 = 0;
             m10 += 1;
+            if m10 == 6 {
+                m10 = 0;
+                h += 1;
+            }
         }
         _ => (),
     }
@@ -62,7 +67,6 @@ where
         return;
     }
 
-    let mut h = h;
     if h > 12 {
         h -= 12;
     }
@@ -86,7 +90,7 @@ where
     if m10 + m1 != 0 {
         match m10 {
             1 => leds.extend(vec![19]),     // 십
-            2 => leds.extend(vec![17, 19]), // 이십
+            2 => leds.extend(vec![17, 22]), // 이십
             3 => leds.extend(vec![18, 19]), // 삼십
             4 => leds.extend(vec![24, 22]), // 사십
             5 => leds.extend(vec![23, 22]), // 오십
