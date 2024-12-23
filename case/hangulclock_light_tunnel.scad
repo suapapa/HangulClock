@@ -1,13 +1,13 @@
 union() {
     tunnel(0,0);
-    translate([33/2,0,0]) cube([2,170-1,15], center=true);
-    translate([-33/2,0,0]) cube([2,170-1,15], center=true);
-    translate([33/2+33,0,0]) cube([2,170-1,15], center=true);
-    translate([-33/2-33,0,0]) cube([2,170-1,15], center=true);
-    translate([0,33/2,0]) cube([170-1,2,15], center=true);
-    translate([0,-33/2,0]) cube([170-1,2,15], center=true);
-    translate([0,33/2+33,0]) cube([170-1,2,15], center=true);
-    translate([0,-33/2-33,0]) cube([170-1,2,15], center=true);
+    translate([33/2,0,0]) cube([2,170,15], center=true);
+    translate([-33/2,0,0]) cube([2,170,15], center=true);
+    translate([33/2+33,0,0]) cube([2,170,15], center=true);
+    translate([-33/2-33,0,0]) cube([2,170,15], center=true);
+    translate([0,33/2,0]) cube([170,2,15], center=true);
+    translate([0,-33/2,0]) cube([170,2,15], center=true);
+    translate([0,33/2+33,0]) cube([170,2,15], center=true);
+    translate([0,-33/2-33,0]) cube([170,2,15], center=true);
 }
 
 module tunnel(x, y) {

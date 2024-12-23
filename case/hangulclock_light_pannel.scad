@@ -8,33 +8,33 @@ difference() {
         translate([-170/6,0,1]) cube([5,170-1, 3], center=true);
         translate([+170/6,0,1]) cube([5,170-1, 3], center=true);
     }
-    translate([-170/2,0,-1]) cube([10,10,5], center=true);
-    translate([170/2,0,-1]) cube([10,10,5], center=true);
-    translate([-170/2,33,-1]) cube([10,10,5], center=true);
-    translate([170/2,33,-1]) cube([10,10,5], center=true);
-    translate([-170/2,-33,-1]) cube([10,10,5], center=true);
-    translate([170/2,-33,-1]) cube([10,10,5], center=true);    
-    translate([-170/2,33*2,-1]) cube([10,10,5], center=true);
-    translate([170/2,33*2,-1]) cube([10,10,5], center=true);
-    translate([-170/2,-33*2,-1]) cube([10,10,5], center=true);
-    translate([170/2,-33*2,-1]) cube([10,10,5], center=true);
+    translate([-170/2,0,-1]) cube([12,12,15], center=true);
+    translate([170/2,0,-1]) cube([12,12,15], center=true);
+    translate([-170/2,33,-1]) cube([12,12,15], center=true);
+    translate([170/2,33,-1]) cube([12,12,15], center=true);
+    translate([-170/2,-33,-1]) cube([12,12,15], center=true);
+    translate([170/2,-33,-1]) cube([12,12,15], center=true);    
+    translate([-170/2,33*2,-1]) cube([12,12,15], center=true);
+    translate([170/2,33*2,-1]) cube([12,12,15], center=true);
+    translate([-170/2,-33*2,-1]) cube([12,12,15], center=true);
+    translate([170/2,-33*2,-1]) cube([12,12,15], center=true);
 }
 
 module oled_supports() {
-    translate([-(38.5-3)/2,-(35.5-3)/2],0) {
-        support(3, 4);
-        translate([38.5-3,0,0]) support(3, 4);
-        translate([0,35.5-3,0]) support(3, 4);
-        translate([38.5-3,35.5-3,0]) support(3, 4);
+    translate([-(38.5-3)/2,-(35.5-3)/2]) {
+        support(3, 5);
+        translate([38.5-3,0,0]) support(3, 5);
+        translate([0,35.5-3,0]) support(3, 5);
+        translate([38.5-3,35.5-3,0]) support(3, 5);
     }
 }
 
 module board_supports() {
-    translate([-(41.5-3)/2,-(46.5-3)/2],0) {
-        support(2, 4);
-        translate([41.5-2,0,0]) support(2, 4);
-        translate([0,46.5-2,0]) support(2, 4);
-        translate([41.5-2,46.5-2,0]) support(2, 4);
+    translate([-(41.5-3)/2,-(46.5-3)/2]) {
+        support(2, 5);
+        translate([41.5-2,0,0]) support(2, 5);
+        translate([0,46.5-2,0]) support(2, 5);
+        translate([41.5-2,46.5-2,0]) support(2, 5);
     }
 }
 
