@@ -9,6 +9,10 @@
 
 ## 소스코드
 
+### Rusty HangulClock
+
+Please Refer [rusty_hangulclock/README.md](rusty_hangulclock/README.md)
+
 ### Go program which using Periph.io
 
 Build for ARM64 SBCs:
@@ -27,10 +31,9 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 ## 링크
 
 - 블로그 글:
-  - [한글시계 뒷 이야기](https://homin.dev/blog/p=493/)
-  - [11년 만에 완성한, 원조, 한글시계](https://homin.dev/blog/post/20221009_hangulclock_is_re-written_in_golang/)
-- [하드웨어 제작 사진](https://picasaweb.google.com/118040095502884745897/KoreanWordClockWithArduino#)
-- [다른 한글시계들](http://hangulclocks.suapapa.net)
+  - [다시만든 한글시계 with 러스트](https://homin.dev/blog/post/20241222_rusty_hangulclock/) - 2024-12
+  - [11년 만에 완성한, 원조, 한글시계](https://homin.dev/blog/post/20221009_hangulclock_is_re-written_in_golang/) - 2022-09
+  - [한글시계 뒷 이야기](https://homin.dev/blog/p=493/) - 2011-11
 
 ## 라이선스
 
@@ -41,5 +44,6 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 ### 소스코드 
 
 아두이노 스케치와, 고 프로그램의 라이선스가 각각 다릅니다. 각각의 폴더에서 확인하세요.
-- Arduino Sketch: [ardino/HangulClock/LICENSE](arduino/HangulClock/LICENSE)
+- Rust program: [rusty_hangulclock/LICENSE](rusty_hangulclock/LICENSE)
 - Go program: [go_hangulclock/LICENSE](go_hangulclock/LICENSE)
+- Arduino Sketch: [ardino/HangulClock/LICENSE](arduino/HangulClock/LICENSE)
