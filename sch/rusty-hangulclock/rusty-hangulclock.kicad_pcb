@@ -76,7 +76,7 @@
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "../../Downloads/rusty_hangulclock/")
+			(outputdirectory "../../gerber/")
 		)
 	)
 	(net 0 "")
