@@ -172,21 +172,21 @@
 				)
 			)
 		)
-		(symbol "Connector:Conn_01x05_Pin"
+		(symbol "Connector:Conn_01x04_Pin"
 			(pin_names
 				(offset 1.016) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "J"
-				(at 0 7.62 0)
+				(at 0 5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "Conn_01x05_Pin"
+			(property "Value" "Conn_01x04_Pin"
 				(at 0 -7.62 0)
 				(effects
 					(font
@@ -212,7 +212,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Generic connector, single row, 01x05, script generated"
+			(property "Description" "Generic connector, single row, 01x04, script generated"
 				(at 0 0 0)
 				(effects
 					(font
@@ -247,7 +247,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "Conn_01x05_Pin_1_1"
+			(symbol "Conn_01x04_Pin_1_1"
 				(polyline
 					(pts
 						(xy 1.27 -5.08) (xy 0.8636 -5.08)
@@ -287,18 +287,6 @@
 				(polyline
 					(pts
 						(xy 1.27 2.54) (xy 0.8636 2.54)
-					)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 5.08) (xy 0.8636 5.08)
 					)
 					(stroke
 						(width 0.1524)
@@ -352,19 +340,8 @@
 						(type outline)
 					)
 				)
-				(rectangle
-					(start 0.8636 5.207)
-					(end 0 4.953)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
 				(pin passive line
-					(at 5.08 5.08 180)
+					(at 5.08 2.54 180)
 					(length 3.81)
 					(name "Pin_1"
 						(effects
@@ -382,7 +359,7 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 2.54 180)
+					(at 5.08 0 180)
 					(length 3.81)
 					(name "Pin_2"
 						(effects
@@ -400,7 +377,7 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 0 180)
+					(at 5.08 -2.54 180)
 					(length 3.81)
 					(name "Pin_3"
 						(effects
@@ -418,7 +395,7 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 -2.54 180)
+					(at 5.08 -5.08 180)
 					(length 3.81)
 					(name "Pin_4"
 						(effects
@@ -428,24 +405,6 @@
 						)
 					)
 					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -5.08 180)
-					(length 3.81)
-					(name "Pin_5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2333,6 +2292,16 @@
 	)
 	(wire
 		(pts
+			(xy 119.38 92.71) (xy 119.38 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b23a51b-b962-4a75-adaf-6ef517efb725")
+	)
+	(wire
+		(pts
 			(xy 194.31 77.47) (xy 193.04 77.47)
 		)
 		(stroke
@@ -2350,6 +2319,16 @@
 			(type default)
 		)
 		(uuid "0fc5a000-adff-4254-ae9f-e64f94003113")
+	)
+	(wire
+		(pts
+			(xy 134.62 105.41) (xy 179.07 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17df25c8-dc52-4baa-b96f-c8fd87d39ff5")
 	)
 	(wire
 		(pts
@@ -2393,7 +2372,7 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 115.57) (xy 107.95 115.57)
+			(xy 105.41 115.57) (xy 107.95 115.57)
 		)
 		(stroke
 			(width 0)
@@ -2453,6 +2432,26 @@
 	)
 	(wire
 		(pts
+			(xy 134.62 95.25) (xy 134.62 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "30df24db-18af-4079-b86a-062ff0a4a306")
+	)
+	(wire
+		(pts
+			(xy 189.23 77.47) (xy 189.23 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3406f793-d264-4149-be7d-31824ac6d684")
+	)
+	(wire
+		(pts
 			(xy 199.39 91.44) (xy 199.39 93.98)
 		)
 		(stroke
@@ -2460,16 +2459,6 @@
 			(type default)
 		)
 		(uuid "34bb7f78-017a-4a90-8952-002ba2333985")
-	)
-	(wire
-		(pts
-			(xy 118.11 118.11) (xy 104.14 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a3b5fe5-b0b9-4993-bb79-c83557b648d8")
 	)
 	(wire
 		(pts
@@ -2533,6 +2522,16 @@
 	)
 	(wire
 		(pts
+			(xy 119.38 118.11) (xy 105.41 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "718700fc-3197-4045-80ff-329f6c9a19c5")
+	)
+	(wire
+		(pts
 			(xy 107.95 80.01) (xy 105.41 80.01)
 		)
 		(stroke
@@ -2543,13 +2542,13 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 90.17) (xy 118.11 118.11)
+			(xy 179.07 105.41) (xy 179.07 77.47)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "763961e8-ad51-4874-846f-94c596479105")
+		(uuid "78420dd9-8bb3-4483-a096-45af5f2d8e95")
 	)
 	(wire
 		(pts
@@ -2563,23 +2562,23 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 92.71) (xy 119.38 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7fd934d2-6461-4807-975b-92e7a54f52bf")
-	)
-	(wire
-		(pts
-			(xy 107.95 113.03) (xy 104.14 113.03)
+			(xy 107.95 113.03) (xy 105.41 113.03)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "94142f8f-f283-4681-b4c2-deca8ebf2e2e")
+	)
+	(wire
+		(pts
+			(xy 118.11 90.17) (xy 118.11 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "963b5b8b-490c-4405-97f4-5058da7974b9")
 	)
 	(wire
 		(pts
@@ -2633,6 +2632,16 @@
 	)
 	(wire
 		(pts
+			(xy 138.43 95.25) (xy 134.62 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa7a4fe8-0a54-4207-be9c-264543968812")
+	)
+	(wire
+		(pts
 			(xy 138.43 82.55) (xy 110.49 82.55)
 		)
 		(stroke
@@ -2640,16 +2649,6 @@
 			(type default)
 		)
 		(uuid "b9d26489-994c-4c0b-85b3-002704fc84d9")
-	)
-	(wire
-		(pts
-			(xy 138.43 95.25) (xy 120.65 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c157fec3-1aa9-452b-b396-6ad6a4cdc53f")
 	)
 	(wire
 		(pts
@@ -2673,13 +2672,13 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 123.19) (xy 120.65 123.19)
+			(xy 118.11 120.65) (xy 105.41 120.65)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c82709f7-e85e-45f0-9a3a-8cfba323b244")
+		(uuid "c5620d68-3ce5-41f4-9869-a4a2f4516331")
 	)
 	(wire
 		(pts
@@ -2703,16 +2702,6 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 120.65) (xy 104.14 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ce8e8da7-5f26-484b-9f32-d0aa5be3f019")
-	)
-	(wire
-		(pts
 			(xy 107.95 115.57) (xy 107.95 127)
 		)
 		(stroke
@@ -2730,16 +2719,6 @@
 			(type default)
 		)
 		(uuid "d7e40efd-3519-4b71-9bd3-2a363c29a8a1")
-	)
-	(wire
-		(pts
-			(xy 120.65 95.25) (xy 120.65 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d90e694a-c997-4af4-9330-cefe6299d49c")
 	)
 	(wire
 		(pts
@@ -2907,7 +2886,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0399c372-2f84-4460-ab5d-6f48564e3667")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR09"
 			(at 199.39 95.25 0)
 			(effects
 				(font
@@ -2957,7 +2936,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR011")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -3109,7 +3088,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "16265078-9410-45ab-8f72-478f82e7f0c7")
-		(property "Reference" "#PWR013"
+		(property "Reference" "#PWR08"
 			(at 184.15 133.35 0)
 			(effects
 				(font
@@ -3159,7 +3138,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR013")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -3175,7 +3154,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "22b347a1-3b88-466a-b3ba-e6629f3e1410")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR03"
 			(at 107.95 113.03 0)
 			(effects
 				(font
@@ -3225,84 +3204,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR04")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x05_Pin")
-		(at 99.06 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "37646fd2-2e65-43ae-a9b7-f426eff4a827")
-		(property "Reference" "J1"
-			(at 99.695 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Conn_OLED"
-			(at 99.695 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal"
-			(at 99.06 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 99.06 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x05, script generated"
-			(at 99.06 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "14e935c9-8d5b-454a-8a44-e5b62f98d387")
-		)
-		(pin "5"
-			(uuid "7a573f63-4308-4240-bb1c-e4ebc7e589a7")
-		)
-		(pin "1"
-			(uuid "10d23cbc-215d-4632-8301-71c8fbd19ac6")
-		)
-		(pin "2"
-			(uuid "d4977902-9530-42b5-bcf1-f1385f2d40d8")
-		)
-		(pin "4"
-			(uuid "d78c1a3e-3c98-410b-b09f-86c11d5fce96")
-		)
-		(instances
-			(project ""
-				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "J1")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -3318,7 +3220,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "39e77e2c-d8da-4bfc-b0fc-86bdec73e7fa")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR012"
 			(at 199.39 133.35 0)
 			(effects
 				(font
@@ -3368,7 +3270,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR06")
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -3511,6 +3413,146 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 189.23 80.01 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "643366c8-b95b-45b1-85e7-a31b83298edd")
+		(property "Reference" "#PWR016"
+			(at 189.23 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 189.23 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 189.23 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 189.23 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 189.23 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8e0c447a-cd98-4012-8409-aa2891d1fb84")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "#PWR016")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x04_Pin")
+		(at 100.33 115.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "74eb7c45-2d62-4dd1-ba87-2be272fcf71e")
+		(property "Reference" "J1"
+			(at 100.965 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_OLED"
+			(at 100.965 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+			(at 100.33 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 100.33 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x04, script generated"
+			(at 100.33 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2a07ebed-cef3-4c7c-a5a6-c6fdfabc6ec7")
+		)
+		(pin "4"
+			(uuid "5f1e5048-feb9-4c66-8c08-afbaeb40a857")
+		)
+		(pin "3"
+			(uuid "01ec53ee-3e87-4142-ac2c-33a1125b7d35")
+		)
+		(pin "2"
+			(uuid "2692f8b2-77a1-4f28-8fb4-ac90319efea8")
+		)
+		(instances
+			(project ""
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 162.56 78.74 0)
 		(unit 1)
@@ -3520,7 +3562,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7dc52d12-2c8f-426c-bba1-6d420c217410")
-		(property "Reference" "#PWR01"
+		(property "Reference" "#PWR05"
 			(at 162.56 82.55 0)
 			(effects
 				(font
@@ -3570,7 +3612,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR01")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -3586,7 +3628,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8a771272-8f59-4d0f-9871-44bf8665acfa")
-		(property "Reference" "H3"
+		(property "Reference" "H2"
 			(at 138.43 115.5699 0)
 			(effects
 				(font
@@ -3634,7 +3676,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "H3")
+					(reference "H2")
 					(unit 1)
 				)
 			)
@@ -3650,7 +3692,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8f7457ff-4d82-48c3-a501-35c530b498af")
-		(property "Reference" "M1"
+		(property "Reference" "ESP32-C3_SuperMini1"
 			(at 150.876 74.93 0)
 			(effects
 				(font
@@ -3664,6 +3706,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Homin_Library:ESP32-C3_SuperMini_SMD"
@@ -3744,7 +3787,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "M1")
+					(reference "ESP32-C3_SuperMini1")
 					(unit 1)
 				)
 			)
@@ -3830,7 +3873,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9b587777-152c-4861-955e-c1ff26d6c657")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR07"
 			(at 166.37 114.3 0)
 			(effects
 				(font
@@ -3880,7 +3923,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR09")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -3896,7 +3939,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9ef2f8a6-fd0d-431f-ac7e-07e06b3c2c89")
-		(property "Reference" "#PWR08"
+		(property "Reference" "#PWR06"
 			(at 166.37 82.55 0)
 			(effects
 				(font
@@ -3946,7 +3989,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR08")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -3962,7 +4005,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aebd60a7-c390-4c35-a424-c5ea3f46c13f")
-		(property "Reference" "H2"
+		(property "Reference" "H3"
 			(at 138.43 120.6499 0)
 			(effects
 				(font
@@ -4010,7 +4053,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "H2")
+					(reference "H3")
 					(unit 1)
 				)
 			)
@@ -4026,7 +4069,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b34c8643-3736-4a20-9f10-d59c24a24cf2")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR04"
 			(at 107.95 133.35 0)
 			(effects
 				(font
@@ -4076,7 +4119,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR05")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -4172,7 +4215,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ba3c1def-c76e-4aa3-9308-1a97eb972786")
-		(property "Reference" "#PWR012"
+		(property "Reference" "#PWR013"
 			(at 204.47 86.36 0)
 			(effects
 				(font
@@ -4222,7 +4265,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR012")
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -4238,7 +4281,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bc6cfdcb-5211-4bf6-869e-ae7c75fc773a")
-		(property "Reference" "H4"
+		(property "Reference" "H1"
 			(at 138.43 110.4899 0)
 			(effects
 				(font
@@ -4286,7 +4329,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "H4")
+					(reference "H1")
 					(unit 1)
 				)
 			)
@@ -4361,6 +4404,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Switch:SW_Push")
+		(at 184.15 77.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "cf9ed748-c18d-4208-b5b7-ea48e758a092")
+		(property "Reference" "SW2"
+			(at 184.15 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_Push"
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm"
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Push button switch, generic, two pins"
+			(at 184.15 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "a9975fd6-3fe6-4bc4-bfc7-792a2d754268")
+		)
+		(pin "1"
+			(uuid "5c9fb7eb-3dee-466e-a1cd-ac18404860c2")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 199.39 119.38 0)
 		(unit 1)
@@ -4370,7 +4481,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d7bf6ec6-40fb-42ac-8682-138bf347994e")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR011"
 			(at 199.39 123.19 0)
 			(effects
 				(font
@@ -4420,7 +4531,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR02")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -4581,7 +4692,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f170c268-1603-4d33-8fe9-2671160022a0")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR01"
 			(at 107.95 81.28 0)
 			(effects
 				(font
@@ -4631,7 +4742,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR03")
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -4647,7 +4758,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f489ab83-7471-4c67-b80a-23a16343d0ae")
-		(property "Reference" "H1"
+		(property "Reference" "H4"
 			(at 138.43 125.7299 0)
 			(effects
 				(font
@@ -4695,7 +4806,7 @@
 		(instances
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "H1")
+					(reference "H4")
 					(unit 1)
 				)
 			)
@@ -4712,7 +4823,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ff5eca84-1999-48aa-ba16-3777f8ebabd1")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR02"
 			(at 107.95 102.87 0)
 			(effects
 				(font
@@ -4762,7 +4873,7 @@
 		(instances
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
-					(reference "#PWR07")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
