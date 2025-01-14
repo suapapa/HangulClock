@@ -2,7 +2,7 @@
 
 ![rusty_hangulclock](https://homin.dev/asset/blog/img/rusty_hangulclock_00_1024.jpg)
 
-HangulClock written in Rust on ESP32S2 board
+HangulClock written in Rust on ESP32C3 board
 
 ## Build and flash
 
