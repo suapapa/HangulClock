@@ -58,12 +58,12 @@ where
     }
 
     if (h == 0 || h == 24) && m10 + m1 == 0 {
-        show_leds(panel, vec![15, 16]); // 자정
+        show_leds(panel, vec![24 - 15, 24 - 16]); // 자정
         return;
     }
 
     if h == 12 && m10 + m1 == 0 {
-        show_leds(panel, vec![16, 23]); // 정오
+        show_leds(panel, vec![24 - 16, 24 - 23]); // 정오
         return;
     }
 
