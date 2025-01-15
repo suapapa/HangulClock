@@ -20,8 +20,6 @@ const WPS_CONFIG: WpsConfig = WpsConfig {
 };
 
 pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
-    // let mut wifi_configured = global::WIFI_CONFIGURED.lock().unwrap();
-
     wifi.start().await?;
     info!("Wifi started");
 
@@ -67,8 +65,6 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
     wifi.stop().await?;
     info!("Wifi stopped");
 
-    // *wifi_configured = true;
-
     Ok(())
 }
 
@@ -76,18 +72,7 @@ pub async fn net_loop(
     wifi: &mut AsyncWifi<EspWifi<'static>>,
     mut debug_led: impl embedded_hal::digital::OutputPin,
 ) -> anyhow::Result<()> {
-    // let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
-    //     ssid: SSID.try_into().unwrap(),
-    //     bssid: None,
-    //     auth_method: AuthMethod::WPA2Personal,
-    //     password: PASSWORD.try_into().unwrap(),
-    //     channel: None,
-    //     ..Default::default()
-    // });
-
-    // wifi.set_configuration(&wifi_configuration)?;
     debug_led.set_high().unwrap();
-    // let rx = global::CHAN_NET.1.lock().unwrap();
 
     loop {
         let cmd_net: String;
@@ -102,13 +87,6 @@ pub async fn net_loop(
             }
             "NTP" => {
                 info!("Received NTP command");
-                // let wifi_configured = { global::WIFI_CONFIGURED.lock().unwrap() };
-                // if !*wifi_configured {
-                //     info!("Connecting to wifi using WPS");
-                //     Timer::after(Duration::from_secs(3)).await;
-                //     continue;
-                // }
-
                 {
                     info!("Resetting time_synced");
                     let mut time_synced = global::TIME_SYNCED.lock().unwrap();
@@ -167,9 +145,7 @@ async fn sync_time() -> bool {
             time_synced = true;
             break;
         }
-        info!("Waiting for SNTP sync");
-        // draw_text(&mut disp, "Waiting for\nSNTP sync...")?;
-        // std::thread::sleep(time::Duration::from_secs(3));
+        info!("Waiting for SNTP sync...");
         Timer::after(Duration::from_secs(3)).await;
         retry -= 1;
     }

@@ -9,22 +9,17 @@ use embassy_time::{Duration, Timer};
 // use embedded_hal::spi::MODE_3;
 use esp_idf_svc::hal::gpio::*;
 use esp_idf_svc::hal::i2c::*;
-// use esp_idf_svc::hal::peripheral::Peripheral;
 use esp_idf_svc::hal::peripherals::Peripherals;
 use esp_idf_svc::hal::prelude::*;
 use esp_idf_svc::hal::spi::{
     config::Config as SpiConfig, config::DriverConfig as SpiDriverConfig, SpiBusDriver, SpiDriver,
 };
 use esp_idf_svc::hal::task;
-use esp_idf_svc::sys::time;
 use esp_idf_svc::timer::EspTaskTimerService;
 use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::{eventloop::EspSystemEventLoop, nvs::EspDefaultNvsPartition};
 use log::{info, warn};
-use sh1106::{
-    prelude::{GraphicsMode as Sh1106GM, I2cInterface},
-    Builder as Sh1106Builder,
-};
+use sh1106::{prelude::GraphicsMode as Sh1106GM, Builder as Sh1106Builder};
 use ws2812_spi::{Ws2812, MODE as Ws2812_MODE};
 // use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 use std::time;
@@ -74,7 +69,7 @@ fn main() -> anyhow::Result<()> {
     // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180)
     //     .unwrap();
     disp.flush().unwrap();
-    draw_text(&mut disp, "Hello,\nworld!")?;
+    menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,
@@ -132,8 +127,8 @@ async fn show_time_loop<SPI>(sleds: &mut Ws2812<SPI>) -> anyhow::Result<()>
 where
     SPI: embedded_hal::spi::SpiBus,
 {
-    let mut last_h = 0;
-    let mut last_m = 0;
+    let mut last_h: u8 = 0;
+    let mut last_m: u8 = 0;
     loop {
         let mut skip_loop = false;
         {
@@ -148,8 +143,7 @@ where
         }
 
         if skip_loop {
-            // task::yield_now().await;
-            Timer::after(Duration::from_secs(10)).await; //std::thread::sleep(time::Duration::from_secs(10));
+            Timer::after(Duration::from_secs(10)).await;
             continue;
         }
 
@@ -157,48 +151,21 @@ where
         let timestamp = now.duration_since(time::UNIX_EPOCH).unwrap().as_millis();
         let datetime = Utc.timestamp_millis_opt(timestamp as i64).unwrap();
         let datetime_kst = datetime.with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
-        info!("Current datetime: {}", datetime_kst);
-        // draw_text(
-        //     &mut disp,
-        //     &datetime_kst.format("%Y-%m-%d\n%H:%M:%S").to_string(),
-        // )?;
+        // info!("Current datetime: {}", datetime_kst);
+
         let h: u8 = datetime_kst.hour() as u8;
         let m: u8 = datetime_kst.minute() as u8;
-
         if last_h != h || last_m != m {
             last_h = h;
             last_m = m;
             info!("Time updated");
+
+            let mut last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
+            *last_disp_time = (h, m);
+
             panel_ws2812::show_time(sleds, h, m);
         }
-        // std::thread::sleep(time::Duration::from_secs(1));
         Timer::after(Duration::from_secs(1)).await;
     }
     // Ok(())
-}
-
-fn draw_text(disp: &mut Sh1106GM<I2cInterface<I2cDriver>>, text: &str) -> anyhow::Result<()> {
-    use embedded_graphics::{
-        mono_font::{ascii::FONT_10X20, MonoTextStyleBuilder},
-        pixelcolor::BinaryColor,
-        prelude::*,
-        text::{Alignment, Text},
-    };
-
-    let text_style = MonoTextStyleBuilder::new()
-        .font(&FONT_10X20)
-        .text_color(BinaryColor::On)
-        .background_color(BinaryColor::Off)
-        .build();
-
-    disp.clear();
-    Text::with_alignment(
-        text,
-        Point::new(128 / 2, 64 / 2),
-        text_style,
-        Alignment::Center,
-    )
-    .draw(disp)?;
-    disp.flush().unwrap();
-    Ok(())
 }
