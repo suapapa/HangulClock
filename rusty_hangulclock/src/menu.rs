@@ -43,11 +43,14 @@ pub async fn menu_loop(
         p_sel.wait_for_high().await.unwrap();
         let ts_high = get_ts();
         if ts_high - ts_low < 500 {
-            info!("short press");
-            sel_pressed = true;
+            menu = (menu + 1) % menu_max;
+            info!("sel press: {}", menu);
+            // sel_pressed = true;
+            decide_pressed = false;
         } else {
-            info!("long press");
+            info!("enter press: {}", menu);
             decide_pressed = true;
+            // sel_pressed = false;
         }
 
         disp.clear();
@@ -60,16 +63,15 @@ pub async fn menu_loop(
         .draw(disp)?;
         disp.flush().unwrap();
 
-        if sel_pressed {
-            menu = (menu + 1) % menu_max;
-        }
-
         if decide_pressed {
             match menu {
                 0 => {
                     info!("WPS selected");
-                    let tx = global::CHAN_NET.0.lock().unwrap().clone();
-                    tx.send("WPS".to_string()).unwrap();
+                    // let tx = global::CHAN_NET.0.lock().unwrap().clone();
+                    // tx.send("WPS".to_string()).unwrap();
+                    let mut cmd_net = global::CMD_NET.lock().unwrap();
+                    *cmd_net = "WPS".to_string();
+                    info!("WPS cmd sent");
                 }
                 1 => {
                     info!("Menu 2 selected");

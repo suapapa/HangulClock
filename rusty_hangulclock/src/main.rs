@@ -16,6 +16,7 @@ use esp_idf_svc::hal::spi::{
     config::Config as SpiConfig, config::DriverConfig as SpiDriverConfig, SpiBusDriver, SpiDriver,
 };
 use esp_idf_svc::hal::task;
+use esp_idf_svc::sys::time;
 use esp_idf_svc::timer::EspTaskTimerService;
 use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::{eventloop::EspSystemEventLoop, nvs::EspDefaultNvsPartition};
@@ -101,18 +102,30 @@ fn main() -> anyhow::Result<()> {
     )?;
 
     // task::block_on(time_sync_loop(&mut wifi))?;
-    let time_sync_task = net::net_loop(&mut wifi, wifi_led);
+    let net_task = net::net_loop(&mut wifi, wifi_led);
     let show_time_task = show_time_loop(&mut sleds);
     let menu_task = menu::menu_loop(&mut disp, menu_sel);
+    let time_sync_task = time_sync_loop();
 
     task::block_on(async {
-        match futures::try_join!(time_sync_task, show_time_task, menu_task) {
+        match futures::try_join!(net_task, show_time_task, menu_task, time_sync_task) {
             Ok(_) => info!("All tasks completed"),
             Err(e) => info!("Error in task: {:?}", e),
         }
     });
 
     Ok(())
+}
+
+async fn time_sync_loop() -> anyhow::Result<()> {
+    loop {
+        Timer::after(Duration::from_secs(60 * 60 * 24)).await; // 1 day
+        {
+            let mut cmd_net = global::CMD_NET.lock().unwrap();
+            *cmd_net = "NTP".to_string();
+            info!("NTP cmd sent");
+        }
+    }
 }
 
 async fn show_time_loop<SPI>(sleds: &mut Ws2812<SPI>) -> anyhow::Result<()>
@@ -127,6 +140,9 @@ where
             let time_synced = global::TIME_SYNCED.lock().unwrap();
             if !*time_synced {
                 warn!("Time not synced yet");
+                let mut cmd_net = global::CMD_NET.lock().unwrap();
+                *cmd_net = "NTP".to_string();
+                info!("NTP cmd sent");
                 skip_loop = true;
             }
         }

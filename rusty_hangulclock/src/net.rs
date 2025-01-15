@@ -20,7 +20,7 @@ const WPS_CONFIG: WpsConfig = WpsConfig {
 };
 
 pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
-    let mut wifi_configured = global::WIFI_CONFIGURED.lock().unwrap();
+    // let mut wifi_configured = global::WIFI_CONFIGURED.lock().unwrap();
 
     wifi.start().await?;
     info!("Wifi started");
@@ -61,10 +61,13 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
     wifi.wait_netif_up().await?;
     info!("Wifi netif up");
 
+    sync_time().await;
+    info!("Time synced");
+
     wifi.stop().await?;
     info!("Wifi stopped");
 
-    *wifi_configured = true;
+    // *wifi_configured = true;
 
     Ok(())
 }
@@ -84,21 +87,27 @@ pub async fn net_loop(
 
     // wifi.set_configuration(&wifi_configuration)?;
     debug_led.set_high().unwrap();
-    let rx = global::CHAN_NET.1.lock().unwrap();
-    for cmd in rx.iter() {
-        match cmd.as_str() {
+    // let rx = global::CHAN_NET.1.lock().unwrap();
+
+    loop {
+        let cmd_net: String;
+        {
+            cmd_net = global::CMD_NET.lock().unwrap().to_string();
+        }
+
+        match cmd_net.as_str() {
             "WPS" => {
                 info!("Received WPS command");
                 connect_wps(wifi).await?;
             }
             "NTP" => {
                 info!("Received NTP command");
-                let wifi_configured = { global::WIFI_CONFIGURED.lock().unwrap() };
-                if !*wifi_configured {
-                    info!("Connecting to wifi using WPS");
-                    Timer::after(Duration::from_secs(3)).await;
-                    continue;
-                }
+                // let wifi_configured = { global::WIFI_CONFIGURED.lock().unwrap() };
+                // if !*wifi_configured {
+                //     info!("Connecting to wifi using WPS");
+                //     Timer::after(Duration::from_secs(3)).await;
+                //     continue;
+                // }
 
                 {
                     info!("Resetting time_synced");
@@ -120,6 +129,8 @@ pub async fn net_loop(
                     warn!("Failed to sync time");
                 }
 
+                sync_time().await;
+
                 wifi.stop().await?;
                 info!("Wifi stopped");
                 {
@@ -127,19 +138,20 @@ pub async fn net_loop(
                     let mut time_synced = global::TIME_SYNCED.lock().unwrap();
                     *time_synced = sync_time_result;
                 }
-                sync_time().await;
             }
             _ => {
-                warn!("Unknown command: {}", cmd);
+                // warn!("Unknown command: \"{}\"", cmd_net);
             }
         }
 
-        debug_led.set_low().unwrap();
-        // Timer::after(Duration::from_secs(60 * 60 * 24)).await;
-        // Timer::after(Duration::from_secs(30)).await;
-    }
+        if cmd_net.as_str() != "" {
+            let mut cmd_net = { global::CMD_NET.lock().unwrap() };
+            *cmd_net = "".to_string();
+        }
 
-    Ok(())
+        debug_led.set_low().unwrap();
+        Timer::after(Duration::from_secs(1)).await;
+    }
 }
 
 async fn sync_time() -> bool {

@@ -1,9 +1,9 @@
-use ws2812_spi::Ws2812;
 use embedded_hal;
 use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
+use ws2812_spi::Ws2812;
 
 const LED_NUM: usize = 25;
-const DEFAULT_BRIGHTNESS: u8 = 100;
+// const DEFAULT_BRIGHTNESS: u8 = 100;
 
 pub fn welcome<SPI>(sleds: &mut Ws2812<SPI>)
 where
@@ -124,17 +124,17 @@ where
     }
     if m10 + m1 != 0 {
         match m10 {
-            1 => leds.extend(vec![5]),       // 십
-            2 => leds.extend(vec![7, 2]),    // 이십
-            3 => leds.extend(vec![6, 5]),    // 삼십
-            4 => leds.extend(vec![0, 2]),    // 사십
-            5 => leds.extend(vec![1, 2]),    // 오십
+            1 => leds.extend(vec![5]),    // 십
+            2 => leds.extend(vec![7, 2]), // 이십
+            3 => leds.extend(vec![6, 5]), // 삼십
+            4 => leds.extend(vec![0, 2]), // 사십
+            5 => leds.extend(vec![1, 2]), // 오십
             _ => (),
         }
         if m1 == 5 {
             leds.extend(vec![3, 4]); // 오분
         } else {
-            leds.extend(vec![4]);    // 분
+            leds.extend(vec![4]); // 분
         }
     }
     show_leds(panel, leds);
