@@ -20,6 +20,7 @@ const WPS_CONFIG: WpsConfig = WpsConfig {
 };
 
 pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
+    let _guard = global::WIFI_IN_USE.lock();
     wifi.start().await?;
     info!("Wifi started");
 
@@ -65,6 +66,8 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
     wifi.stop().await?;
     info!("Wifi stopped");
 
+    drop(_guard);
+
     Ok(())
 }
 
@@ -93,6 +96,8 @@ pub async fn net_loop(
                     *time_synced = false;
                 }
 
+                let _guard = global::WIFI_IN_USE.lock();
+
                 wifi.start().await?;
                 info!("Wifi started");
 
@@ -110,6 +115,9 @@ pub async fn net_loop(
                 sync_time().await;
 
                 wifi.stop().await?;
+
+                drop(_guard);
+
                 info!("Wifi stopped");
                 {
                     info!("Setting time_synced");

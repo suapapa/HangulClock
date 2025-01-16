@@ -163,7 +163,9 @@ where
             let mut last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
             *last_disp_time = (h, m);
 
+            let _guard = global::WIFI_IN_USE.lock();
             panel_ws2812::show_time(sleds, h, m);
+            drop(_guard);
         }
         Timer::after(Duration::from_secs(1)).await;
     }

@@ -17,6 +17,7 @@ pub async fn menu_loop(
 
     let mut decide_pressed: bool;
 
+    let mut last_disp_time: (u8, u8) = (0, 0);
     loop {
         if !in_menu {
             if p_sel.is_low().unwrap() {
@@ -26,18 +27,15 @@ pub async fn menu_loop(
             }
 
             {
-                let last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
-                info!(
-                    "last_disp_time: {:02}:{:02}",
-                    last_disp_time.0, last_disp_time.1
-                );
-                draw_text(
-                    disp,
-                    &format!(
-                        "Rusty HangulClock\n{:02}:{:02}",
-                        last_disp_time.0, last_disp_time.1
-                    ),
-                )?;
+                let disp_time = global::LAST_DISP_TIME.lock().unwrap();
+                if disp_time.0 != last_disp_time.0 || disp_time.1 != last_disp_time.1 {
+                    info!("disp_time: {:02}:{:02}", disp_time.0, disp_time.1);
+                    draw_text(
+                        disp,
+                        &format!("Rusty HangulClock\n{:02}:{:02}", disp_time.0, disp_time.1),
+                    )?;
+                    last_disp_time = *disp_time;
+                }
             }
             Timer::after(Duration::from_secs(5)).await;
             continue;
