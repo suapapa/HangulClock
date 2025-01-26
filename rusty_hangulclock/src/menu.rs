@@ -20,28 +20,21 @@ pub async fn menu_loop(
 
     let mut decide_pressed: bool;
 
-    let mut last_disp_time: (u8, u8) = (0, 0);
+    draw_text(disp, &format!("Rusty HangulClock\npress to enter menu"))?;
     loop {
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(300)).await;
         {
             let mut in_menu = global::IN_MENU.lock().unwrap();
             if !(*in_menu) {
+                // let disp_time = { global::LAST_DISP_TIME.lock().unwrap() };
+                draw_text(disp, &format!("Rusty HangulClock\npress to enter menu"))?;
                 if p_sel.is_low().unwrap() {
                     info!("enter menu");
                     *in_menu = true;
                     menu = 0;
-                    continue;
                 }
 
-                let disp_time = { global::LAST_DISP_TIME.lock().unwrap() };
-                if disp_time.0 != last_disp_time.0 || disp_time.1 != last_disp_time.1 {
-                    info!("disp_time: {:02}:{:02}", disp_time.0, disp_time.1);
-                    draw_text(
-                        disp,
-                        &format!("Rusty HangulClock\n{:02}:{:02}", disp_time.0, disp_time.1),
-                    )?;
-                    last_disp_time = *disp_time;
-                }
+                // Timer::after(Duration::from_millis(300)).await;
                 continue;
             }
         }
@@ -68,8 +61,6 @@ pub async fn menu_loop(
             menu = (menu + 1) % menu_max;
         }
 
-        // draw_text(disp, menus[menu])?;
-
         if decide_pressed {
             let mut in_menu = global::IN_MENU.lock().unwrap();
             match menu {
@@ -85,21 +76,6 @@ pub async fn menu_loop(
                             info!("CMD_NET in use");
                         }
                     }
-
-                    // loop {
-                    //     Timer::after(Duration::from_secs(3)).await;
-                    //     match global::CMD_NET.try_lock() {
-                    //         Ok(cmd_net) => {
-                    //             if cmd_net.as_str() == "" {
-                    //                 in_menu = false;
-                    //                 break;
-                    //             }
-                    //         }
-                    //         Err(_) => {
-                    //             info!("CMD_NET in use");
-                    //         }
-                    //     }
-                    // }
                 }
                 1 => {
                     info!("NTP selected");
@@ -113,21 +89,6 @@ pub async fn menu_loop(
                             info!("CMD_NET in use");
                         }
                     }
-
-                    // loop {
-                    //     Timer::after(Duration::from_secs(3)).await;
-                    //     match global::CMD_NET.try_lock() {
-                    //         Ok(cmd_net) => {
-                    //             if cmd_net.as_str() == "" {
-                    //                 in_menu = false;
-                    //                 break;
-                    //             }
-                    //         }
-                    //         Err(_) => {
-                    //             info!("CMD_NET in use");
-                    //         }
-                    //     }
-                    // }
                 }
                 2 => {
                     info!("EXIT selected");
@@ -137,6 +98,21 @@ pub async fn menu_loop(
                 }
                 _ => {
                     info!("Unknown menu selected");
+                }
+            }
+
+            loop {
+                Timer::after(Duration::from_secs(30)).await;
+                match global::CMD_NET.try_lock() {
+                    Ok(cmd_net) => {
+                        if cmd_net.as_str() == "" {
+                            *in_menu = false;
+                            break;
+                        }
+                    }
+                    Err(_) => {
+                        info!("CMD_NET in use");
+                    }
                 }
             }
         }

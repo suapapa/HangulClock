@@ -153,31 +153,18 @@ where
             }
         }
 
-        match global::WIFI_IN_USE.try_lock() {
-            Ok(wifi_in_use) => {
-                if *wifi_in_use {
-                    warn!("Wifi in use");
-                    continue;
-                }
-            }
-            Err(_) => {
-                warn!("Wifi in use");
-                continue;
-            }
-        }
-
         match global::TIME_SYNCED.try_lock() {
             Ok(time_synced) => {
                 if !*time_synced {
-                    // match global::CMD_NET.try_lock() {
-                    //     Ok(mut cmd_net) => {
-                    //         *cmd_net = "NTP".to_string();
-                    //         info!("NTP cmd sent");
-                    //     }
-                    //     Err(_) => {
-                    //         info!("CMD_NET in use");
-                    //     }
-                    // }
+                    match global::CMD_NET.try_lock() {
+                        Ok(mut cmd_net) => {
+                            *cmd_net = "NTP".to_string();
+                            info!("NTP cmd sent");
+                        }
+                        Err(_) => {
+                            info!("CMD_NET in use");
+                        }
+                    }
                     continue;
                 }
             }
@@ -198,10 +185,7 @@ where
         if last_h != h || last_m != m {
             last_h = h;
             last_m = m;
-            info!("Time updated");
-
-            let mut last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
-            *last_disp_time = (h, m);
+            info!("Time updated, h: {}, m: {}", h, m);
             panel_ws2812::show_time(sleds, h, m);
         }
         Timer::after(Duration::from_secs(1)).await;
