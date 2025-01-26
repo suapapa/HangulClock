@@ -22,7 +22,7 @@ pub async fn menu_loop(
 
     let mut last_disp_time: (u8, u8) = (0, 0);
     loop {
-        Timer::after(Duration::from_secs(1)).await;
+        Timer::after(Duration::from_millis(100)).await;
         {
             let mut in_menu = global::IN_MENU.lock().unwrap();
             if !(*in_menu) {
@@ -56,12 +56,16 @@ pub async fn menu_loop(
         p_sel.wait_for_high().await.unwrap();
         let ts_high = get_ts();
         if ts_high - ts_low < 500 {
-            menu = (menu + 1) % menu_max;
             info!("sel press: {}", menu);
             decide_pressed = false;
         } else {
             info!("enter press: {}", menu);
             decide_pressed = true;
+        }
+
+        if !decide_pressed {
+            // change menu
+            menu = (menu + 1) % menu_max;
         }
 
         // draw_text(disp, menus[menu])?;

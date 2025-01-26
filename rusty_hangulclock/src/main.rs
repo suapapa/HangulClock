@@ -27,7 +27,7 @@ use std::time;
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
-    info!("Hello, world!");
+    info!("Hello, RustyHangulClock!");
 
     let p = Peripherals::take()?;
 
@@ -139,28 +139,52 @@ where
     let mut last_h: u8 = 0;
     let mut last_m: u8 = 0;
     loop {
-        if global::IN_MENU.lock().unwrap().clone() {
-            Timer::after(Duration::from_secs(1)).await;
-            continue;
-        }
-
-        let skip_loop: bool;
-        {
-            match global::TIME_SYNCED.lock() {
-                Ok(time_synced) => {
-                    skip_loop = !(*time_synced);
+        Timer::after(Duration::from_secs(10)).await;
+        match global::IN_MENU.try_lock() {
+            Ok(in_menu) => {
+                if *in_menu {
+                    warn!("IN_MENU in use");
+                    continue;
                 }
-                Err(_) => {
-                    warn!("TIME_SYNCED in use");
-                    skip_loop = true;
-                }
+            }
+            Err(_) => {
+                // warn!("IN_MENU in use");
+                continue;
             }
         }
 
-        if skip_loop {
-            info!("Time not synced yet");
-            Timer::after(Duration::from_secs(10)).await;
-            continue;
+        match global::WIFI_IN_USE.try_lock() {
+            Ok(wifi_in_use) => {
+                if *wifi_in_use {
+                    warn!("Wifi in use");
+                    continue;
+                }
+            }
+            Err(_) => {
+                warn!("Wifi in use");
+                continue;
+            }
+        }
+
+        match global::TIME_SYNCED.try_lock() {
+            Ok(time_synced) => {
+                if !*time_synced {
+                    // match global::CMD_NET.try_lock() {
+                    //     Ok(mut cmd_net) => {
+                    //         *cmd_net = "NTP".to_string();
+                    //         info!("NTP cmd sent");
+                    //     }
+                    //     Err(_) => {
+                    //         info!("CMD_NET in use");
+                    //     }
+                    // }
+                    continue;
+                }
+            }
+            Err(_) => {
+                warn!("TIME_SYNCED in use");
+                continue;
+            }
         }
 
         let now = time::SystemTime::now();
@@ -178,15 +202,7 @@ where
 
             let mut last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
             *last_disp_time = (h, m);
-
-            match global::WIFI_IN_USE.try_lock() {
-                Ok(_) => {
-                    panel_ws2812::show_time(sleds, h, m);
-                }
-                Err(_) => {
-                    warn!("Wifi in use");
-                }
-            }
+            panel_ws2812::show_time(sleds, h, m);
         }
         Timer::after(Duration::from_secs(1)).await;
     }

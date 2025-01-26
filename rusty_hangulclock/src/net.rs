@@ -124,32 +124,28 @@ pub async fn net_loop(
     // debug_led.set_high().unwrap();
 
     loop {
+        Timer::after(Duration::from_secs(1)).await;
         {
             let mut cmd_net = global::CMD_NET.lock().unwrap();
 
             match cmd_net.as_str() {
                 "WPS" => {
                     info!("Received WPS command");
-                    connect_wps(wifi).await?;
+                    match connect_wps(wifi).await {
+                        Ok(_) => (),
+                        Err(e) => {
+                            warn!("Failed to connect to wifi with wps: {:?}", e);
+                        }
+                    }
                 }
                 "NTP" => {
                     info!("Received NTP command");
-
-                    wifi.start().await?;
-                    info!("Wifi started");
-
-                    wifi.connect().await?;
-                    info!("Wifi connected");
-
-                    wifi.wait_netif_up().await?;
-                    info!("Wifi netif up");
-
-                    if sync_time().await {
-                        warn!("Failed to sync time");
+                    match sync_time_with_wifi(wifi).await {
+                        Ok(_) => (),
+                        Err(e) => {
+                            warn!("Failed to sync time: {:?}", e);
+                        }
                     }
-
-                    wifi.stop().await?;
-                    info!("Wifi stopped");
                 }
                 _ => {
                     // warn!("Unknown command: \"{}\"", cmd_net);
@@ -164,8 +160,28 @@ pub async fn net_loop(
         }
 
         // debug_led.set_low().unwrap();
-        Timer::after(Duration::from_secs(1)).await;
     }
+}
+
+async fn sync_time_with_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<bool> {
+    wifi.start().await?;
+    info!("Wifi started");
+
+    wifi.connect().await?;
+    info!("Wifi connected");
+
+    wifi.wait_netif_up().await?;
+    info!("Wifi netif up");
+
+    let sync_result = sync_time().await;
+    if !sync_result {
+        warn!("Failed to sync time");
+    }
+
+    wifi.stop().await?;
+    info!("Wifi stopped");
+
+    Ok(sync_result)
 }
 
 async fn sync_time() -> bool {
