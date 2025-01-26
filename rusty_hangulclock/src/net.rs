@@ -6,6 +6,7 @@ use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::wifi::{WpsConfig, WpsFactoryInfo, WpsStatus, WpsType};
 use log::{info, warn};
 
+/*
 const SSID: &str = env!("WIFI_SSID");
 const PASSWORD: &str = env!("WIFI_PASS");
 
@@ -45,6 +46,7 @@ pub async fn connect_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Res
 
     Ok(())
 }
+*/
 
 const WPS_CONFIG: WpsConfig = WpsConfig {
     wps_type: WpsType::Pbc,
@@ -57,23 +59,11 @@ const WPS_CONFIG: WpsConfig = WpsConfig {
 };
 
 pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
-    let _guard = global::WIFI_IN_USE.lock();
-
-    let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
-        ssid: SSID.try_into().unwrap(),
-        bssid: None,
-        auth_method: AuthMethod::WPA2Personal,
-        password: PASSWORD.try_into().unwrap(),
-        channel: None,
-        ..Default::default()
-    });
-
-    wifi.set_configuration(&wifi_configuration)?;
-
+    // match global::WIFI_IN_USE.try_lock() {
+    //     Ok(_) => {
     wifi.start().await?;
     info!("Wifi started");
 
-    /*
     info!("Starting WPS...");
     match wifi.start_wps(&WPS_CONFIG).await? {
         WpsStatus::SuccessConnected => (),
@@ -104,7 +94,6 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
         }
         _ => anyhow::bail!("Not in station mode"),
     };
-    */
 
     wifi.connect().await?;
     info!("Wifi connected");
@@ -118,83 +107,70 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
     wifi.stop().await?;
     info!("Wifi stopped");
 
-    drop(_guard);
+    return Ok(());
+    //     }
+    //     Err(_) => {
+    //         warn!("Wifi in use");
 
-    Ok(())
+    //         return Ok(());
+    //     }
+    // }
 }
 
 pub async fn net_loop(
     wifi: &mut AsyncWifi<EspWifi<'static>>,
-    mut debug_led: impl embedded_hal::digital::OutputPin,
+    // mut debug_led: impl embedded_hal::digital::OutputPin,
 ) -> anyhow::Result<()> {
-    debug_led.set_high().unwrap();
+    // debug_led.set_high().unwrap();
 
     loop {
-        let cmd_net: String;
         {
-            cmd_net = global::CMD_NET.lock().unwrap().to_string();
-        }
+            let mut cmd_net = global::CMD_NET.lock().unwrap();
 
-        match cmd_net.as_str() {
-            "WPS" => {
-                info!("Received WPS command");
-                connect_wps(wifi).await?;
-            }
-            "NTP" => {
-                info!("Received NTP command");
-                {
-                    info!("Resetting time_synced");
-                    let mut time_synced = global::TIME_SYNCED.lock().unwrap();
-                    *time_synced = false;
+            match cmd_net.as_str() {
+                "WPS" => {
+                    info!("Received WPS command");
+                    connect_wps(wifi).await?;
                 }
+                "NTP" => {
+                    info!("Received NTP command");
 
-                let _guard = global::WIFI_IN_USE.lock();
+                    wifi.start().await?;
+                    info!("Wifi started");
 
-                wifi.start().await?;
-                info!("Wifi started");
+                    wifi.connect().await?;
+                    info!("Wifi connected");
 
-                wifi.connect().await?;
-                info!("Wifi connected");
+                    wifi.wait_netif_up().await?;
+                    info!("Wifi netif up");
 
-                wifi.wait_netif_up().await?;
-                info!("Wifi netif up");
+                    if sync_time().await {
+                        warn!("Failed to sync time");
+                    }
 
-                let sync_time_result = sync_time().await;
-                if !sync_time_result {
-                    warn!("Failed to sync time");
+                    wifi.stop().await?;
+                    info!("Wifi stopped");
                 }
-
-                sync_time().await;
-
-                wifi.stop().await?;
-
-                drop(_guard);
-
-                info!("Wifi stopped");
-                {
-                    info!("Setting time_synced");
-                    let mut time_synced = global::TIME_SYNCED.lock().unwrap();
-                    *time_synced = sync_time_result;
+                _ => {
+                    // warn!("Unknown command: \"{}\"", cmd_net);
                 }
             }
-            _ => {
-                // warn!("Unknown command: \"{}\"", cmd_net);
+
+            if cmd_net.as_str() != "" {
+                // info!("Clearing command");
+                // let mut cmd_net = global::CMD_NET.lock().unwrap();
+                *cmd_net = "".to_string();
             }
         }
 
-        if cmd_net.as_str() != "" {
-            let mut cmd_net = { global::CMD_NET.lock().unwrap() };
-            *cmd_net = "".to_string();
-        }
-
-        debug_led.set_low().unwrap();
+        // debug_led.set_low().unwrap();
         Timer::after(Duration::from_secs(1)).await;
     }
 }
 
 async fn sync_time() -> bool {
     let sntp = sntp::EspSntp::new_default().expect("Failed to create SNTP");
-    let mut time_synced = false;
+    let mut ret = false;
     let mut retry = 10;
     loop {
         if retry == 0 {
@@ -202,7 +178,7 @@ async fn sync_time() -> bool {
         }
         if sntp.get_sync_status() == sntp::SyncStatus::Completed {
             info!("SNTP synced");
-            time_synced = true;
+            ret = true;
             break;
         }
         info!("Waiting for SNTP sync...");
@@ -210,5 +186,11 @@ async fn sync_time() -> bool {
         retry -= 1;
     }
 
-    time_synced
+    {
+        info!("Setting time_synced");
+        let mut time_synced = global::TIME_SYNCED.lock().unwrap();
+        *time_synced = ret;
+    }
+
+    ret
 }

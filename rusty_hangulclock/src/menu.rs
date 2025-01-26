@@ -1,7 +1,7 @@
 use crate::global;
 use embassy_time::{Duration, Timer};
 use esp_idf_svc::hal::i2c::*;
-use esp_idf_svc::hal::task;
+// use esp_idf_svc::hal::task;
 use log::info;
 use sh1106::prelude::{GraphicsMode as Sh1106GM, I2cInterface};
 use std::time;
@@ -10,26 +10,9 @@ pub async fn menu_loop(
     disp: &mut Sh1106GM<I2cInterface<I2cDriver<'_>>>,
     mut p_sel: impl embedded_hal::digital::InputPin + embedded_hal_async::digital::Wait,
 ) -> anyhow::Result<()> {
-    loop {
-        // task::yield_now().await;
-        p_sel.wait_for_low().await.unwrap();
-        info!("WPS selected");
-        draw_text(disp, "* WPS *")?;
-        {
-            let mut cmd_net = global::CMD_NET.lock().unwrap();
-            *cmd_net = "WPS".to_string();
-        }
-        info!("WPS cmd sent");
-        // task::yield_now().await;
-        Timer::after(Duration::from_secs(5)).await;
-    }
-}
-/*
-pub async fn menu_loop(
-    disp: &mut Sh1106GM<I2cInterface<I2cDriver<'_>>>,
-    mut p_sel: impl embedded_hal::digital::InputPin + embedded_hal_async::digital::Wait,
-) -> anyhow::Result<()> {
-    let mut in_menu = false;
+    info!("staring menu_loop()...");
+
+    // let mut in_menu = false;
 
     let mut menu = 0;
     let menus = ["WPS", "NTP", "EXIT"];
@@ -39,16 +22,18 @@ pub async fn menu_loop(
 
     let mut last_disp_time: (u8, u8) = (0, 0);
     loop {
-        if !in_menu {
-            if p_sel.is_low().unwrap() {
-                info!("enter menu");
-                in_menu = true;
-                menu = 0;
-                continue;
-            }
+        Timer::after(Duration::from_secs(1)).await;
+        {
+            let mut in_menu = global::IN_MENU.lock().unwrap();
+            if !(*in_menu) {
+                if p_sel.is_low().unwrap() {
+                    info!("enter menu");
+                    *in_menu = true;
+                    menu = 0;
+                    continue;
+                }
 
-            {
-                let disp_time = global::LAST_DISP_TIME.lock().unwrap();
+                let disp_time = { global::LAST_DISP_TIME.lock().unwrap() };
                 if disp_time.0 != last_disp_time.0 || disp_time.1 != last_disp_time.1 {
                     info!("disp_time: {:02}:{:02}", disp_time.0, disp_time.1);
                     draw_text(
@@ -57,12 +42,14 @@ pub async fn menu_loop(
                     )?;
                     last_disp_time = *disp_time;
                 }
+                continue;
             }
-            Timer::after(Duration::from_secs(5)).await;
-            continue;
         }
 
-        draw_text(disp, menus[menu])?;
+        draw_text(
+            disp,
+            &format!("= MENU =\n{}\ns:next\nl:decide", &(menus[menu])),
+        )?;
 
         p_sel.wait_for_low().await.unwrap();
         let ts_low = get_ts();
@@ -77,28 +64,71 @@ pub async fn menu_loop(
             decide_pressed = true;
         }
 
-        draw_text(disp, menus[menu])?;
+        // draw_text(disp, menus[menu])?;
 
         if decide_pressed {
+            let mut in_menu = global::IN_MENU.lock().unwrap();
             match menu {
                 0 => {
                     info!("WPS selected");
-                    draw_text(disp, "* WPS *")?;
-                    let mut cmd_net = global::CMD_NET.lock().unwrap();
-                    *cmd_net = "WPS".to_string();
-                    info!("WPS cmd sent");
+                    match global::CMD_NET.try_lock() {
+                        Ok(mut cmd_net) => {
+                            draw_text(disp, "* WPS *")?;
+                            *cmd_net = "WPS".to_string();
+                            info!("WPS cmd sent");
+                        }
+                        Err(_) => {
+                            info!("CMD_NET in use");
+                        }
+                    }
+
+                    // loop {
+                    //     Timer::after(Duration::from_secs(3)).await;
+                    //     match global::CMD_NET.try_lock() {
+                    //         Ok(cmd_net) => {
+                    //             if cmd_net.as_str() == "" {
+                    //                 in_menu = false;
+                    //                 break;
+                    //             }
+                    //         }
+                    //         Err(_) => {
+                    //             info!("CMD_NET in use");
+                    //         }
+                    //     }
+                    // }
                 }
                 1 => {
                     info!("NTP selected");
-                    draw_text(disp, "* NPT *")?;
-                    let mut cmd_net = global::CMD_NET.lock().unwrap();
-                    *cmd_net = "NTP".to_string();
-                    info!("NTP cmd sent");
+                    match global::CMD_NET.try_lock() {
+                        Ok(mut cmd_net) => {
+                            draw_text(disp, "* NPT *")?;
+                            *cmd_net = "NTP".to_string();
+                            info!("NTP cmd sent");
+                        }
+                        Err(_) => {
+                            info!("CMD_NET in use");
+                        }
+                    }
+
+                    // loop {
+                    //     Timer::after(Duration::from_secs(3)).await;
+                    //     match global::CMD_NET.try_lock() {
+                    //         Ok(cmd_net) => {
+                    //             if cmd_net.as_str() == "" {
+                    //                 in_menu = false;
+                    //                 break;
+                    //             }
+                    //         }
+                    //         Err(_) => {
+                    //             info!("CMD_NET in use");
+                    //         }
+                    //     }
+                    // }
                 }
                 2 => {
                     info!("EXIT selected");
                     draw_text(disp, "* EXIT *")?;
-                    in_menu = false;
+                    *in_menu = false;
                     // Do something
                 }
                 _ => {
@@ -108,7 +138,6 @@ pub async fn menu_loop(
         }
     }
 }
- */
 
 fn get_ts() -> u128 {
     let now = time::SystemTime::now();
@@ -132,13 +161,8 @@ pub fn draw_text(disp: &mut Sh1106GM<I2cInterface<I2cDriver>>, text: &str) -> an
         .build();
 
     disp.clear();
-    Text::with_alignment(
-        text,
-        Point::new(128 / 2, 64 / 2),
-        text_style,
-        Alignment::Center,
-    )
-    .draw(disp)?;
+    Text::with_alignment(text, Point::new(128 / 2, 10), text_style, Alignment::Center)
+        .draw(disp)?;
     disp.flush().unwrap();
     Ok(())
 }

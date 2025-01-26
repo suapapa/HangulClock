@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
     let p_sled_sclk = p.pins.gpio4;
     let p_sled_mosi = p.pins.gpio6;
     let p_sled_spi = p.spi2;
-    let p_wifi_led = p.pins.gpio3;
+    // let p_wifi_led = p.pins.gpio3;
     let p_menu_sel = p.pins.gpio2;
     // let p_menu_decide = p.pins.gpio0;
 
@@ -45,7 +45,7 @@ fn main() -> anyhow::Result<()> {
     let timer_service = EspTaskTimerService::new()?;
     let nvs = EspDefaultNvsPartition::take()?;
 
-    let wifi_led = PinDriver::output(p_wifi_led)?;
+    // let wifi_led = PinDriver::output(p_wifi_led)?;
     let mut menu_sel = PinDriver::input(p_menu_sel)?;
     menu_sel.set_pull(Pull::Up)?;
     // let mut menu_decide = PinDriver::input(p_menu_decide)?;
@@ -57,7 +57,6 @@ fn main() -> anyhow::Result<()> {
     // // Timer::after(Duration::from_millis(100)).await;
     // disp_res.set_high().unwrap();
 
-    /*
     let i2c_config = I2cConfig::new().baudrate(50.kHz().into());
     let i2c = I2cDriver::new(
         p.i2c0,
@@ -67,11 +66,9 @@ fn main() -> anyhow::Result<()> {
     )?;
     let mut disp: Sh1106GM<_> = Sh1106Builder::new().connect_i2c(i2c).into();
     disp.init().unwrap();
-    // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180)
-    //     .unwrap();
+    // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180).unwrap();
     disp.flush().unwrap();
-    menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
-    */
+    // menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,
@@ -90,7 +87,7 @@ fn main() -> anyhow::Result<()> {
     // let mut sleds = Ws2812::new(spi_bus, &mut sled_buf);
     let mut sleds = Ws2812::new(spi_bus);
 
-    // panel_ws2812::welcome(&mut sleds);
+    panel_ws2812::welcome(&mut sleds);
 
     let mut wifi = AsyncWifi::wrap(
         EspWifi::new(p.modem, sys_loop.clone(), Some(nvs))?,
@@ -98,19 +95,14 @@ fn main() -> anyhow::Result<()> {
         timer_service,
     )?;
 
-    info!("Connecting to wifi...");
-    task::block_on(net::connect_wifi(&mut wifi))?;
-    info!("Connected to wifi");
-
-    // task::block_on(time_sync_loop(&mut wifi))?;
-    // let net_task = net::net_loop(&mut wifi, wifi_led);
-    // let show_time_task = show_time_loop(&mut sleds);
-    // let menu_task = menu::menu_loop(&mut disp, menu_sel);
+    let net_task = net::net_loop(&mut wifi);
+    let show_time_task = show_time_loop(&mut sleds);
+    let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
 
     info!("Starting tasks...");
     task::block_on(async {
-        match futures::try_join!(/*net_task, show_time_task, menu_task, */ time_sync_task) {
+        match futures::try_join!(menu_task, net_task, time_sync_task, show_time_task) {
             Ok(_) => info!("All tasks completed"),
             Err(e) => info!("Error in task: {:?}", e),
         }
@@ -120,12 +112,20 @@ fn main() -> anyhow::Result<()> {
 }
 
 async fn time_sync_loop() -> anyhow::Result<()> {
+    info!("Starting time_sync_loop()...");
+
     loop {
         Timer::after(Duration::from_secs(60 * 60 * 24)).await; // 1 day
         {
-            let mut cmd_net = global::CMD_NET.lock().unwrap();
-            *cmd_net = "NTP".to_string();
-            info!("NTP cmd sent");
+            match global::CMD_NET.try_lock() {
+                Ok(mut cmd_net) => {
+                    *cmd_net = "NTP".to_string();
+                    info!("NTP cmd sent");
+                }
+                Err(_) => {
+                    warn!("CMD_NET in use");
+                }
+            }
         }
     }
 }
@@ -134,25 +134,31 @@ async fn show_time_loop<SPI>(sleds: &mut Ws2812<SPI>) -> anyhow::Result<()>
 where
     SPI: embedded_hal::spi::SpiBus,
 {
+    info!("Starting show_time_loop()...");
+
     let mut last_h: u8 = 0;
     let mut last_m: u8 = 0;
     loop {
-        let mut skip_loop = false;
+        if global::IN_MENU.lock().unwrap().clone() {
+            Timer::after(Duration::from_secs(1)).await;
+            continue;
+        }
 
-        let _guard = global::WIFI_IN_USE.lock();
+        let skip_loop: bool;
         {
-            let time_synced = global::TIME_SYNCED.lock().unwrap();
-            if !*time_synced {
-                warn!("Time not synced yet");
-                // let mut cmd_net = global::CMD_NET.lock().unwrap();
-                // *cmd_net = "NTP".to_string();
-                // info!("NTP cmd sent");
-                skip_loop = true;
+            match global::TIME_SYNCED.lock() {
+                Ok(time_synced) => {
+                    skip_loop = !(*time_synced);
+                }
+                Err(_) => {
+                    warn!("TIME_SYNCED in use");
+                    skip_loop = true;
+                }
             }
         }
-        drop(_guard);
 
         if skip_loop {
+            info!("Time not synced yet");
             Timer::after(Duration::from_secs(10)).await;
             continue;
         }
@@ -173,9 +179,14 @@ where
             let mut last_disp_time = global::LAST_DISP_TIME.lock().unwrap();
             *last_disp_time = (h, m);
 
-            let _guard = global::WIFI_IN_USE.lock();
-            panel_ws2812::show_time(sleds, h, m);
-            drop(_guard);
+            match global::WIFI_IN_USE.try_lock() {
+                Ok(_) => {
+                    panel_ws2812::show_time(sleds, h, m);
+                }
+                Err(_) => {
+                    warn!("Wifi in use");
+                }
+            }
         }
         Timer::after(Duration::from_secs(1)).await;
     }
