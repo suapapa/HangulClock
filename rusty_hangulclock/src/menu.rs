@@ -1,6 +1,7 @@
 use crate::global;
 use embassy_time::{Duration, Timer};
 use esp_idf_svc::hal::i2c::*;
+use esp_idf_svc::hal::task;
 use log::info;
 use sh1106::prelude::{GraphicsMode as Sh1106GM, I2cInterface};
 use std::time;
@@ -9,10 +10,29 @@ pub async fn menu_loop(
     disp: &mut Sh1106GM<I2cInterface<I2cDriver<'_>>>,
     mut p_sel: impl embedded_hal::digital::InputPin + embedded_hal_async::digital::Wait,
 ) -> anyhow::Result<()> {
+    loop {
+        // task::yield_now().await;
+        p_sel.wait_for_low().await.unwrap();
+        info!("WPS selected");
+        draw_text(disp, "* WPS *")?;
+        {
+            let mut cmd_net = global::CMD_NET.lock().unwrap();
+            *cmd_net = "WPS".to_string();
+        }
+        info!("WPS cmd sent");
+        // task::yield_now().await;
+        Timer::after(Duration::from_secs(5)).await;
+    }
+}
+/*
+pub async fn menu_loop(
+    disp: &mut Sh1106GM<I2cInterface<I2cDriver<'_>>>,
+    mut p_sel: impl embedded_hal::digital::InputPin + embedded_hal_async::digital::Wait,
+) -> anyhow::Result<()> {
     let mut in_menu = false;
 
     let mut menu = 0;
-    let menus = ["WPS", "DEMO", "EXIT"];
+    let menus = ["WPS", "NTP", "EXIT"];
     let menu_max = menus.len();
 
     let mut decide_pressed: bool;
@@ -21,9 +41,10 @@ pub async fn menu_loop(
     loop {
         if !in_menu {
             if p_sel.is_low().unwrap() {
-                info!("exit in menu");
+                info!("enter menu");
                 in_menu = true;
                 menu = 0;
+                continue;
             }
 
             {
@@ -40,6 +61,8 @@ pub async fn menu_loop(
             Timer::after(Duration::from_secs(5)).await;
             continue;
         }
+
+        draw_text(disp, menus[menu])?;
 
         p_sel.wait_for_low().await.unwrap();
         let ts_low = get_ts();
@@ -66,9 +89,11 @@ pub async fn menu_loop(
                     info!("WPS cmd sent");
                 }
                 1 => {
-                    info!("DEMO selected");
-                    draw_text(disp, "* DEMO *")?;
-                    // Do something
+                    info!("NTP selected");
+                    draw_text(disp, "* NPT *")?;
+                    let mut cmd_net = global::CMD_NET.lock().unwrap();
+                    *cmd_net = "NTP".to_string();
+                    info!("NTP cmd sent");
                 }
                 2 => {
                     info!("EXIT selected");
@@ -83,6 +108,7 @@ pub async fn menu_loop(
         }
     }
 }
+ */
 
 fn get_ts() -> u128 {
     let now = time::SystemTime::now();

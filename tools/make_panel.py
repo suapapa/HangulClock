@@ -81,6 +81,6 @@ def make_panel(
     image.save(f'panel_{os.path.basename(fontPath)}.png', dpi=(DPI, DPI))
 
 if __name__ == '__main__':
-    make_panel(drawYOffsetMM=-5, fontPath=r'./KCCBangJeonghwanTTF.ttf', flip=True)
+    make_panel(drawYOffsetMM=0, fontPath=r'./경기천년바탕_Bold.ttf', flip=True)
 
 # vim: et sw=4 fenc=utf-8:

@@ -6,24 +6,75 @@ use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::wifi::{WpsConfig, WpsFactoryInfo, WpsStatus, WpsType};
 use log::{info, warn};
 
-// const SSID: &str = env!("WIFI_SSID");
-// const PASSWORD: &str = env!("WIFI_PASS");
+const SSID: &str = env!("WIFI_SSID");
+const PASSWORD: &str = env!("WIFI_PASS");
+
+pub async fn connect_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
+    let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
+        ssid: SSID.try_into().unwrap(),
+        bssid: None,
+        auth_method: AuthMethod::WPA2Personal,
+        password: PASSWORD.try_into().unwrap(),
+        channel: None,
+        ..Default::default()
+    });
+
+    wifi.set_configuration(&wifi_configuration)?;
+    info!("Wifi configuration set");
+
+    wifi.start().await?;
+    info!("Wifi started");
+
+    match wifi.connect().await {
+        Ok(_) => (),
+        Err(e) => {
+            warn!("Failed to connect to wifi: {:?}", e);
+            return Err(e.into());
+        }
+    }
+    info!("Wifi connected");
+
+    wifi.wait_netif_up().await?;
+    info!("Wifi netif up");
+
+    sync_time().await;
+    info!("Time synced");
+
+    wifi.stop().await?;
+    info!("Wifi stopped");
+
+    Ok(())
+}
 
 const WPS_CONFIG: WpsConfig = WpsConfig {
     wps_type: WpsType::Pbc,
     factory_info: WpsFactoryInfo {
         manufacturer: "homin.dev",
         model_number: "hangulclock202501",
-        model_name: "homin.dev IoT",
+        model_name: "Rusty Hangul Clock",
         device_name: "Rusty Hangul Clock",
     },
 };
 
 pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
     let _guard = global::WIFI_IN_USE.lock();
+
+    let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
+        ssid: SSID.try_into().unwrap(),
+        bssid: None,
+        auth_method: AuthMethod::WPA2Personal,
+        password: PASSWORD.try_into().unwrap(),
+        channel: None,
+        ..Default::default()
+    });
+
+    wifi.set_configuration(&wifi_configuration)?;
+
     wifi.start().await?;
     info!("Wifi started");
 
+    /*
+    info!("Starting WPS...");
     match wifi.start_wps(&WPS_CONFIG).await? {
         WpsStatus::SuccessConnected => (),
         WpsStatus::SuccessMultipleAccessPoints(credentials) => {
@@ -53,6 +104,7 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
         }
         _ => anyhow::bail!("Not in station mode"),
     };
+    */
 
     wifi.connect().await?;
     info!("Wifi connected");

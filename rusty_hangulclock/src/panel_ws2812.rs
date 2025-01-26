@@ -5,6 +5,7 @@ use ws2812_spi::Ws2812;
 const LED_NUM: usize = 25;
 // const DEFAULT_BRIGHTNESS: u8 = 100;
 
+/*
 pub fn welcome<SPI>(sleds: &mut Ws2812<SPI>)
 where
     SPI: embedded_hal::spi::SpiBus,
@@ -35,6 +36,7 @@ where
     }
     sleds.write(gamma(data.iter().cloned())).unwrap();
 }
+*/
 
 pub fn show_time<SPI>(panel: &mut Ws2812<SPI>, h: u8, m: u8)
 where

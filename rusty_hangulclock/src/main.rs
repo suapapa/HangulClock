@@ -57,6 +57,7 @@ fn main() -> anyhow::Result<()> {
     // // Timer::after(Duration::from_millis(100)).await;
     // disp_res.set_high().unwrap();
 
+    /*
     let i2c_config = I2cConfig::new().baudrate(50.kHz().into());
     let i2c = I2cDriver::new(
         p.i2c0,
@@ -70,6 +71,7 @@ fn main() -> anyhow::Result<()> {
     //     .unwrap();
     disp.flush().unwrap();
     menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
+    */
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,
@@ -88,7 +90,7 @@ fn main() -> anyhow::Result<()> {
     // let mut sleds = Ws2812::new(spi_bus, &mut sled_buf);
     let mut sleds = Ws2812::new(spi_bus);
 
-    panel_ws2812::welcome(&mut sleds);
+    // panel_ws2812::welcome(&mut sleds);
 
     let mut wifi = AsyncWifi::wrap(
         EspWifi::new(p.modem, sys_loop.clone(), Some(nvs))?,
@@ -96,14 +98,19 @@ fn main() -> anyhow::Result<()> {
         timer_service,
     )?;
 
+    info!("Connecting to wifi...");
+    task::block_on(net::connect_wifi(&mut wifi))?;
+    info!("Connected to wifi");
+
     // task::block_on(time_sync_loop(&mut wifi))?;
-    let net_task = net::net_loop(&mut wifi, wifi_led);
-    let show_time_task = show_time_loop(&mut sleds);
-    let menu_task = menu::menu_loop(&mut disp, menu_sel);
+    // let net_task = net::net_loop(&mut wifi, wifi_led);
+    // let show_time_task = show_time_loop(&mut sleds);
+    // let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
 
+    info!("Starting tasks...");
     task::block_on(async {
-        match futures::try_join!(net_task, show_time_task, menu_task, time_sync_task) {
+        match futures::try_join!(/*net_task, show_time_task, menu_task, */ time_sync_task) {
             Ok(_) => info!("All tasks completed"),
             Err(e) => info!("Error in task: {:?}", e),
         }
@@ -131,16 +138,19 @@ where
     let mut last_m: u8 = 0;
     loop {
         let mut skip_loop = false;
+
+        let _guard = global::WIFI_IN_USE.lock();
         {
             let time_synced = global::TIME_SYNCED.lock().unwrap();
             if !*time_synced {
                 warn!("Time not synced yet");
-                let mut cmd_net = global::CMD_NET.lock().unwrap();
-                *cmd_net = "NTP".to_string();
-                info!("NTP cmd sent");
+                // let mut cmd_net = global::CMD_NET.lock().unwrap();
+                // *cmd_net = "NTP".to_string();
+                // info!("NTP cmd sent");
                 skip_loop = true;
             }
         }
+        drop(_guard);
 
         if skip_loop {
             Timer::after(Duration::from_secs(10)).await;
