@@ -2,6 +2,7 @@
 mod global;
 mod menu;
 mod net;
+mod nvs;
 mod panel_ws2812;
 
 use chrono::prelude::*;
@@ -94,6 +95,16 @@ fn main() -> anyhow::Result<()> {
         sys_loop,
         timer_service,
     )?;
+
+    task::block_on(async {
+        info!("initial time sync...");
+        match net::sync_time_with_wifi(&mut wifi).await {
+            Ok(_) => (),
+            Err(e) => {
+                warn!("Failed to sync time: {:?}", e);
+            }
+        }
+    });
 
     let net_task = net::net_loop(&mut wifi);
     let show_time_task = show_time_loop(&mut sleds);
