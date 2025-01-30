@@ -19,6 +19,7 @@ opt-level = "z"
 
 [features]
 default = []
+use_dotstar = []
 
 experimental = ["esp-idf-svc/experimental"]
 

@@ -1,9 +1,10 @@
-// mod panel_apa102;
 mod global;
 mod menu;
 mod net;
 mod nvs;
-mod panel_ws2812;
+mod panel;
+
+use panel::*;
 
 use chrono::prelude::*;
 use embassy_time::{Duration, Timer};
@@ -21,9 +22,13 @@ use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::{eventloop::EspSystemEventLoop, nvs::EspDefaultNvsPartition};
 use log::{info, warn};
 use sh1106::{prelude::GraphicsMode as Sh1106GM, Builder as Sh1106Builder};
-use ws2812_spi::{Ws2812, MODE as Ws2812_MODE};
 // use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 use std::time;
+
+#[cfg(feature = "use_dotstar")]
+use apa102_spi::MODE as SPI_MODE;
+#[cfg(not(feature = "use_dotstar"))]
+use ws2812_spi::MODE as SPI_MODE;
 
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
@@ -42,15 +47,8 @@ fn main() -> anyhow::Result<()> {
     let p_menu_sel = p.pins.gpio2;
     // let p_menu_decide = p.pins.gpio0;
 
-    let sys_loop = EspSystemEventLoop::take()?;
-    let timer_service = EspTaskTimerService::new()?;
-    let nvs = EspDefaultNvsPartition::take()?;
-
-    // let wifi_led = PinDriver::output(p_wifi_led)?;
     let mut menu_sel = PinDriver::input(p_menu_sel)?;
     menu_sel.set_pull(Pull::Up)?;
-    // let mut menu_decide = PinDriver::input(p_menu_decide)?;
-    // menu_decide.set_pull(Pull::Up)?;
 
     // let mut disp_res = PinDriver::output(p_oled_res)?;
     // disp_res.set_low().unwrap();
@@ -80,16 +78,14 @@ fn main() -> anyhow::Result<()> {
     )?;
     let spi_config = SpiConfig::new()
         .baudrate(3.MHz().into())
-        .data_mode(Ws2812_MODE);
+        .data_mode(SPI_MODE);
     let spi_bus = SpiBusDriver::new(&mut spi_driver, &spi_config)?;
-    // let mut sleds = apa102_spi::Apa102::new(spi_bus);
+    let mut sleds = panel::Sleds::new(spi_bus);
+    sleds.welcome();
 
-    // let mut sled_buf: [u8; 12 * 25 + 140] = [0; 12 * 25 + 140];
-    // let mut sleds = Ws2812::new(spi_bus, &mut sled_buf);
-    let mut sleds = Ws2812::new(spi_bus);
-
-    panel_ws2812::welcome(&mut sleds);
-
+    let sys_loop = EspSystemEventLoop::take()?;
+    let timer_service = EspTaskTimerService::new()?;
+    let nvs = EspDefaultNvsPartition::take()?;
     let mut wifi = AsyncWifi::wrap(
         EspWifi::new(p.modem, sys_loop.clone(), Some(nvs))?,
         sys_loop,
@@ -126,7 +122,7 @@ async fn time_sync_loop() -> anyhow::Result<()> {
     info!("Starting time_sync_loop()...");
 
     loop {
-        Timer::after(Duration::from_secs(60 * 60 * 24)).await; // 1 day
+        Timer::after(Duration::from_secs(60 * 60 * 24)).await; // 24 hours
         {
             match global::CMD_NET.try_lock() {
                 Ok(mut cmd_net) => {
@@ -141,7 +137,7 @@ async fn time_sync_loop() -> anyhow::Result<()> {
     }
 }
 
-async fn show_time_loop<SPI>(sleds: &mut Ws2812<SPI>) -> anyhow::Result<()>
+async fn show_time_loop<SPI>(sleds: &mut panel::Sleds<SPI>) -> anyhow::Result<()>
 where
     SPI: embedded_hal::spi::SpiBus,
 {
@@ -197,7 +193,7 @@ where
             last_h = h;
             last_m = m;
             info!("Time updated, h: {}, m: {}", h, m);
-            panel_ws2812::show_time(sleds, h, m);
+            sleds.show_time(h, m);
         }
         Timer::after(Duration::from_secs(1)).await;
     }

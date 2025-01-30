@@ -107,7 +107,7 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
     match wifi.get_configuration()? {
         Configuration::Client(config) => {
             info!("Successfully connected to {} using WPS", config.ssid);
-            nvs::store_wifi_cred(&config.ssid.clone(), &config.password.clone())?;
+            nvs::set_wifi_cred(&config.ssid.clone(), &config.password.clone())?;
         }
         _ => anyhow::bail!("Not in station mode"),
     };
@@ -128,7 +128,7 @@ pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Resu
 }
 
 pub async fn sync_time_with_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<bool> {
-    match nvs::load_wifi_cred() {
+    match nvs::get_wifi_cred() {
         Ok((ssid, pass)) => {
             let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
                 ssid: ssid.as_str().try_into().unwrap(),
