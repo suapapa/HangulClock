@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.1,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.5
+          "min_clearance": 0.0
         }
       },
       "diff_pair_dimensions": [
@@ -591,7 +591,7 @@
   "sheets": [
     [
       "51dce3b8-54e3-4f88-acf9-737f6c181e88",
-      "Root"
+      "루트"
     ]
   ],
   "text_variables": {}

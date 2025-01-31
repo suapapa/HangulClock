@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "Rusty HangulClock")
-		(date "2025-01-01")
+		(date "2025-02-01")
 		(rev "0.1")
 	)
 	(lib_symbols
@@ -405,6 +405,142 @@
 						)
 					)
 					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Device:C"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1753,6 +1889,24 @@
 			)
 		)
 	)
+	(junction
+		(at 223.52 74.93)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6a7978d3-e59c-4655-a924-0767e6692333")
+	)
+	(junction
+		(at 219.71 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6d077758-69c7-45b8-9c1b-e3737faf2972")
+	)
+	(junction
+		(at 193.04 74.93)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "caa882cd-33e9-4c97-b9b5-cada2442a82d")
+	)
 	(wire
 		(pts
 			(xy 204.47 85.09) (xy 204.47 80.01)
@@ -1795,13 +1949,13 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 100.33) (xy 219.71 100.33)
+			(xy 219.71 80.01) (xy 227.33 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1300e76d-20a7-4035-b52b-8c9652d614db")
+		(uuid "16366511-66d2-43fe-963d-69cf86858d28")
 	)
 	(wire
 		(pts
@@ -1845,16 +1999,6 @@
 	)
 	(wire
 		(pts
-			(xy 193.04 95.25) (xy 156.21 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2571d8f2-c9e6-4045-bd36-a0fea4db056a")
-	)
-	(wire
-		(pts
 			(xy 223.52 74.93) (xy 219.71 74.93)
 		)
 		(stroke
@@ -1895,16 +2039,6 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 100.33) (xy 219.71 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "394445e8-6de5-4091-af71-4c4487b206e1")
-	)
-	(wire
-		(pts
 			(xy 166.37 86.36) (xy 166.37 107.95)
 		)
 		(stroke
@@ -1915,13 +2049,33 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 97.79) (xy 222.25 97.79)
+			(xy 250.19 77.47) (xy 250.19 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "64b63384-6db5-4694-906e-7f91d1fdc59e")
+		(uuid "63bbd7c3-7761-4f08-b54a-a7a232793730")
+	)
+	(wire
+		(pts
+			(xy 156.21 97.79) (xy 219.71 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64589aec-9081-419b-9b2f-aa10ec01074e")
+	)
+	(wire
+		(pts
+			(xy 223.52 74.93) (xy 223.52 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "654ff37d-543a-4419-afcb-9d577851f43c")
 	)
 	(wire
 		(pts
@@ -1965,6 +2119,26 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 92.71) (xy 186.69 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75edb4f3-5461-4788-8cae-a7a648037059")
+	)
+	(wire
+		(pts
+			(xy 238.76 81.28) (xy 238.76 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7786a606-62b3-496d-bdd0-956010123a1b")
+	)
+	(wire
+		(pts
 			(xy 113.03 87.63) (xy 105.41 87.63)
 		)
 		(stroke
@@ -1972,6 +2146,16 @@
 			(type default)
 		)
 		(uuid "7d953e8e-0cc0-45cd-9c62-565c077d52b3")
+	)
+	(wire
+		(pts
+			(xy 219.71 97.79) (xy 219.71 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7dbc897c-0b6d-4b68-ad76-4f4b063e0569")
 	)
 	(wire
 		(pts
@@ -2015,6 +2199,16 @@
 	)
 	(wire
 		(pts
+			(xy 156.21 92.71) (xy 186.69 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9aeeda0c-d32b-4fb9-b59e-1c762eecd460")
+	)
+	(wire
+		(pts
 			(xy 224.79 127) (xy 224.79 129.54)
 		)
 		(stroke
@@ -2025,7 +2219,7 @@
 	)
 	(wire
 		(pts
-			(xy 193.04 74.93) (xy 204.47 74.93)
+			(xy 186.69 74.93) (xy 193.04 74.93)
 		)
 		(stroke
 			(width 0)
@@ -2035,33 +2229,33 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 92.71) (xy 223.52 92.71)
+			(xy 156.21 95.25) (xy 223.52 95.25)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "a20afbd4-b1ad-4764-b93d-fc188a721562")
+		(uuid "a6f08ab7-f709-4ecc-a59c-a3cfa1645bbe")
 	)
 	(wire
 		(pts
-			(xy 222.25 97.79) (xy 222.25 77.47)
+			(xy 193.04 74.93) (xy 193.04 77.47)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "aceab50b-2e63-4c0e-9e4f-ad8b0432ba24")
+		(uuid "b131673b-f9a5-4d51-a92d-1021b2f23225")
 	)
 	(wire
 		(pts
-			(xy 222.25 77.47) (xy 219.71 77.47)
+			(xy 238.76 74.93) (xy 223.52 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b44e60af-47dd-4bd3-a8a6-58bac92ec465")
+		(uuid "b6823f3e-5175-4438-8c9a-018a2d9f7271")
 	)
 	(wire
 		(pts
@@ -2105,6 +2299,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 74.93) (xy 204.47 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf86d602-2274-4ab3-8758-af49da65da9e")
+	)
+	(wire
+		(pts
 			(xy 107.95 115.57) (xy 107.95 127)
 		)
 		(stroke
@@ -2115,6 +2319,16 @@
 	)
 	(wire
 		(pts
+			(xy 227.33 80.01) (xy 227.33 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dac54158-7ece-459d-aaf3-8d463a3b483c")
+	)
+	(wire
+		(pts
 			(xy 107.95 82.55) (xy 105.41 82.55)
 		)
 		(stroke
@@ -2122,16 +2336,6 @@
 			(type default)
 		)
 		(uuid "dd7de464-9480-47c6-b940-d0bb454623cb")
-	)
-	(wire
-		(pts
-			(xy 193.04 74.93) (xy 193.04 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e2e4a7d3-ea7c-4de2-855c-211f8c4bb14f")
 	)
 	(wire
 		(pts
@@ -2175,6 +2379,16 @@
 	)
 	(wire
 		(pts
+			(xy 219.71 77.47) (xy 250.19 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "efe6f7e3-0391-45f2-9d28-13af87f5beeb")
+	)
+	(wire
+		(pts
 			(xy 107.95 96.52) (xy 107.95 82.55)
 		)
 		(stroke
@@ -2182,16 +2396,6 @@
 			(type default)
 		)
 		(uuid "f56db25c-2100-4313-bc24-424558bfe57a")
-	)
-	(wire
-		(pts
-			(xy 223.52 92.71) (xy 223.52 74.93)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f59f6f5f-bb39-4ec8-8ae3-ae0a5e3c4c69")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -2536,6 +2740,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 193.04 81.28 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "36d801ad-8a65-4ecd-8eda-f163385f746b")
+		(property "Reference" "C4"
+			(at 196.85 80.0099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 196.85 82.5499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+			(at 194.0052 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 193.04 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 193.04 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "04341ca0-8e32-4103-91a6-920bb3cb72e6")
+		)
+		(pin "1"
+			(uuid "551e6936-db47-4895-b722-b5e4c253a404")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "C4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 204.47 85.09 0)
 		(unit 1)
@@ -2668,6 +2941,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 227.33 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "41f9d128-594a-4eb3-b2c6-54397915df2d")
+		(property "Reference" "C2"
+			(at 231.14 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 231.14 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+			(at 228.2952 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 227.33 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "525d6cd8-5acc-4954-9fd4-dc10de2aeb32")
+		)
+		(pin "1"
+			(uuid "412f4ed1-3972-4aa0-b536-38c6bef76ce2")
+		)
+		(instances
+			(project ""
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "C2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
 		(at 207.01 121.92 0)
 		(unit 1)
@@ -2695,7 +3038,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 			(at 207.01 121.92 0)
 			(effects
 				(font
@@ -2732,6 +3075,72 @@
 			(project ""
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
 					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 238.76 88.9 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "46c424d6-2080-4133-8302-55c14ebf0b70")
+		(property "Reference" "#PWR013"
+			(at 238.76 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 238.76 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 238.76 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 238.76 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3e4362f3-f8f2-491e-a94e-aee81aca1c90")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -3396,6 +3805,72 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 250.19 86.36 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b12847a2-972d-4f0d-9c70-4e34dd21ca7f")
+		(property "Reference" "#PWR010"
+			(at 250.19 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 250.19 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 250.19 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 250.19 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 250.19 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "531a8744-bf53-4a8f-88ae-4ea979251170")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "#PWR010")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 107.95 127 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3525,6 +4000,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 227.33 88.9 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c924a7c9-7b1c-49f9-98f7-b7b4265b726f")
+		(property "Reference" "#PWR016"
+			(at 227.33 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 227.33 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 227.33 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 227.33 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 227.33 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c9d6ccac-fe21-4e6f-ae2a-b4727074dd9d")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "#PWR016")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 199.39 119.38 0)
 		(unit 1)
@@ -3585,6 +4126,75 @@
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
 					(reference "#PWR011")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 238.76 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "da0cb21c-4820-48de-aa15-3b76fb77acb4")
+		(property "Reference" "C3"
+			(at 242.57 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 242.57 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+			(at 239.7252 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 238.76 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 238.76 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "a02f9ae2-a493-43bf-bc87-54008bd081eb")
+		)
+		(pin "1"
+			(uuid "e08c9f2c-3fe9-49f9-b393-e0f0ed2cca77")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -3652,6 +4262,72 @@
 			(project "rusty-hangulclock"
 				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
 					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 193.04 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f32f2405-062c-4075-b1ce-ea0a2421163e")
+		(property "Reference" "#PWR017"
+			(at 193.04 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 193.04 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 193.04 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 193.04 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 193.04 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "eba553d1-dda2-448e-b14b-9ea5dc912615")
+		)
+		(instances
+			(project "rusty-hangulclock"
+				(path "/51dce3b8-54e3-4f88-acf9-737f6c181e88"
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
