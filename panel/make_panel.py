@@ -10,6 +10,7 @@
 # (at your option) any later version.
 
 import os
+import argparse
 from PIL import Image
 from PIL import ImageFont, ImageDraw, ImageOps
 
@@ -81,6 +82,11 @@ def make_panel(
     image.save(f'panel_{os.path.basename(fontPath)}.png', dpi=(DPI, DPI))
 
 if __name__ == '__main__':
-    make_panel(drawYOffsetMM=0, fontPath=r'./경기천년바탕_Bold.ttf', flip=True)
+    parser = argparse.ArgumentParser(description='Make silkscreen for panel of HangulClock.')
+    parser.add_argument('--font_path', type=str, default=r'./GowunDodum-Regular.ttf', help='Path to the font file')
+    parser.add_argument('--y_offset', type=float, default=0, help='Y offset in mm')
+    args = parser.parse_args()
+
+    make_panel(drawYOffsetMM=args.y_offset, fontPath=args.font_path, flip=True)
 
 # vim: et sw=4 fenc=utf-8:
