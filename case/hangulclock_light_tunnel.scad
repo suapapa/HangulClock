@@ -1,18 +1,35 @@
 union() {
-    tunnel(0,0);
-    translate([33/2,0,0]) cube([2,170,15], center=true);
-    translate([-33/2,0,0]) cube([2,170,15], center=true);
-    translate([33/2+33,0,0]) cube([2,170,15], center=true);
-    translate([-33/2-33,0,0]) cube([2,170,15], center=true);
-    translate([0,33/2,0]) cube([170,2,15], center=true);
-    translate([0,-33/2,0]) cube([170,2,15], center=true);
-    translate([0,33/2+33,0]) cube([170,2,15], center=true);
-    translate([0,-33/2-33,0]) cube([170,2,15], center=true);
+    translate([33/2,0,0]) wall_w(33*5);
+    translate([-33/2,0,0]) wall_w(33*5);
+    translate([33/2+33,0,0]) wall_w(33*5);
+    translate([-33/2-33,0,0]) wall_w(33*5);
+    translate([33/2+33*2,0,0]) wall_w(170);
+    translate([-33/2-33*2,0,0]) wall_w(170);
+   
+    translate([0,33/2,0]) wall_h(33*5);
+    translate([0,-33/2,0]) wall_h(33*5);
+    translate([0,33/2+33,0]) wall_h(33*5);
+    translate([0,-33/2-33,0]) wall_h(33*5);
+    translate([0,+33/2+33*2,0]) wall_h(170);
+    translate([0,-33/2-33*2,0]) wall_h(170);
+    
+    base();
 }
 
-module tunnel(x, y) {
-    translate([x,y,0]) difference() {
-        cube([33*5+1,33*5+1,15], center=true);
-        translate([0,0,-1])cube([33*5-1-2,33*5-1-2,25], center=true);
-    }
+module wall_w(w) {
+    translate([0,0,12/2])
+        cube([1, w, 12], center=true);
+}
+
+module wall_h(h) {
+    translate([0,0,12/2])
+        cube([h, 1, 12], center=true);
+}
+
+module base() {
+    translate([0,0,0.5/2])
+        difference() {
+            cube([170,170,0.5], center=true);
+            cube([33*5,33*5,1], center=true);
+        }
 }
