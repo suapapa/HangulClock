@@ -1,2 +1,4 @@
 .gitignore
 .DS_Store
+panel/*.png
+panel/*.ttf
