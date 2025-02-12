@@ -4,13 +4,13 @@ difference() {
         translate([30,50,0]) oled_supports_v();
         translate([-30,-35,0]) board_supports();
         translate([30,-35,0]) board_supports_2();
-        cube([170, 170, 1.6], center=true);
-        translate([-170/6,0,1]) cube([5,170, 3], center=true);
-        translate([+170/6,0,1]) cube([5,170, 3], center=true);
-        translate([0,17,1]) cube([170, 5, 3], center=true);
-        translate([0,17+34,1]) cube([170, 5, 3], center=true);
-        translate([0,-17,1]) cube([170, 5, 3], center=true);
-        translate([0,-17-34,1]) cube([170, 5, 3], center=true);
+        cube([170, 170, 1.2], center=true);
+        translate([-170/6,0,1]) cube([5,170, 2.5], center=true);
+        translate([+170/6,0,1]) cube([5,170, 2.5], center=true);
+        translate([0,17,1]) cube([170, 5, 2.5], center=true);
+        translate([0,17+34,1]) cube([170, 5, 2.5], center=true);
+        translate([0,-17,1]) cube([170, 5, 2.5], center=true);
+        translate([0,-17-34,1]) cube([170, 5, 2.5], center=true);
     }
     translate([-170/2,0,-1]) cube([12,12,15], center=true);
     translate([170/2,0,-1]) cube([12,12,15], center=true);
@@ -22,6 +22,11 @@ difference() {
     translate([170/2,33*2,-1]) cube([12,12,15], center=true);
     translate([-170/2,-33*2,-1]) cube([12,12,15], center=true);
     translate([170/2,-33*2,-1]) cube([12,12,15], center=true);
+    
+    translate([75,82.5,0]) cube([10,6,2], center=true);
+    translate([-75,82.5,0]) cube([10,6,2], center=true);
+    translate([75,-82.5,0]) cube([10,6,2], center=true);
+    translate([-75,-82.5,0]) cube([10,6,2], center=true);
 }
 
 module oled_supports() {
