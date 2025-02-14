@@ -1,10 +1,9 @@
+mod encoder;
 mod global;
 mod menu;
 mod net;
 mod nvs;
 mod panel;
-
-use panel::*;
 
 use chrono::prelude::*;
 use embassy_time::{Duration, Timer};

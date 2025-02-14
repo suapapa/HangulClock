@@ -4,26 +4,37 @@
 
 HangulClock written in Rust on ESP32C3 board
 
+Hardware:
+- [sch & pcb artwork](../sch/rusty-hangulclock/) - a KiCad project
+- [case 3d model](../case/)
+
 ## Build and flash
 
+### Pre requirement
 Install toolchain (only for one time):
-
 ```sh
 cargo install espup
 espup install
 ```
 
-Build:
+### Build and flash:
+For dotstar:
 ```sh
-source $HOME/export-esp.sh
-export WIFI_SSID="YOUR_WIFI_SSID"
-export WIFI_PASS="YOUR_WIFI_PASS"
-cargo build --release
+make flash_dotstar
 ```
 
-Flash:
+For neopixel:
 ```sh
-export WIFI_SSID="YOUR_WIFI_SSID"
-export WIFI_PASS="YOUR_WIFI_PASS"
-cargo espflash flash --release
+make flash_dotstar
 ```
+
+### Factory reset settings:
+```sh
+make erase_nvs
+```
+
+## TODOs
+- [ ] Display color setting
+- [ ] Timezone setting
+- [x] WPS to connect Wifi
+- [x] NTP to sync time

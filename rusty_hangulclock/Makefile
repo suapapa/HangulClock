@@ -13,4 +13,4 @@ flash_neopixel:
 erase_nvs:
     # @echo "Erasing NVS..."
 	source ~/export-esp.sh
-	cargo espflash erase-parts --partition-table part.csv nvs
+	cargo espflash erase-parts --partition-table part.csv nvs user_nvs
