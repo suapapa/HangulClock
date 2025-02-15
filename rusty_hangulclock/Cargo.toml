@@ -38,8 +38,9 @@ embedded-hal = "1.0.0"
 ws2812-spi = { version = "0.5.0", features = ["std"] }
 futures = "0.3.31"
 lazy_static = { version = "1.5.0" }
-embassy-time = { version = "0.3.2", features = ["generic-queue-8"] }
+embassy-time = { version = "0.3.2", features = ["generic-queue-64"] }
 embedded-hal-async = "1.0.0"
+rotary-encoder-hal = "0.6.0"
 
 [build-dependencies]
 embuild = "0.33"

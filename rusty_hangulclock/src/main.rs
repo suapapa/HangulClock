@@ -6,7 +6,7 @@ mod nvs;
 mod panel;
 
 use chrono::prelude::*;
-use embassy_time::{Duration, Timer};
+use embassy_time::{Duration, Ticker, Timer};
 // use embedded_hal::spi::MODE_3;
 use esp_idf_svc::hal::gpio::*;
 use esp_idf_svc::hal::i2c::*;
@@ -29,6 +29,8 @@ use apa102_spi::MODE as SPI_MODE;
 #[cfg(not(feature = "use_dotstar"))]
 use ws2812_spi::MODE as SPI_MODE;
 
+use rotary_encoder_hal::{Direction, Rotary};
+
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
@@ -42,12 +44,17 @@ fn main() -> anyhow::Result<()> {
     let p_sled_sclk = p.pins.gpio4;
     let p_sled_mosi = p.pins.gpio6;
     let p_sled_spi = p.spi2;
-    // let p_wifi_led = p.pins.gpio3;
-    let p_menu_sel = p.pins.gpio2;
-    // let p_menu_decide = p.pins.gpio0;
+    let p_menu_r1 = p.pins.gpio1;
+    let p_menu_r2 = p.pins.gpio2;
+    let p_menu_sel = p.pins.gpio3;
 
     let mut menu_sel = PinDriver::input(p_menu_sel)?;
     menu_sel.set_pull(Pull::Up)?;
+
+    let mut menu_r1 = PinDriver::input(p_menu_r1)?;
+    menu_r1.set_pull(Pull::Up)?;
+    let mut menu_r2 = PinDriver::input(p_menu_r2)?;
+    menu_r2.set_pull(Pull::Up)?;
 
     // let mut disp_res = PinDriver::output(p_oled_res)?;
     // disp_res.set_low().unwrap();
@@ -105,10 +112,17 @@ fn main() -> anyhow::Result<()> {
     let show_time_task = show_time_loop(&mut sleds);
     let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
+    let rotary_encoder_test_task = rotary_encoder_test_loop(menu_r1, menu_r2);
 
     info!("Starting tasks...");
     task::block_on(async {
-        match futures::try_join!(menu_task, net_task, time_sync_task, show_time_task) {
+        match futures::try_join!(
+            menu_task,
+            net_task,
+            time_sync_task,
+            show_time_task,
+            rotary_encoder_test_task
+        ) {
             Ok(_) => info!("All tasks completed"),
             Err(e) => info!("Error in task: {:?}", e),
         }
@@ -197,4 +211,29 @@ where
         Timer::after(Duration::from_secs(1)).await;
     }
     // Ok(())
+}
+
+async fn rotary_encoder_test_loop(
+    menu_r1: impl embedded_hal::digital::InputPin,
+    menu_r2: impl embedded_hal::digital::InputPin,
+    // mut menu_sel: impl embedded_hal::digital::InputPin,
+) -> anyhow::Result<()> {
+    info!("Starting rotary_encoder_test_loop()...");
+
+    let mut enc = Rotary::new(menu_r1, menu_r2);
+    let mut ticker = Ticker::every(Duration::from_millis(3));
+
+    loop {
+        match enc.update().unwrap() {
+            Direction::Clockwise => {
+                info!("Clockwise");
+            }
+            Direction::CounterClockwise => {
+                info!("CounterClockwise");
+            }
+            Direction::None => {}
+        }
+        ticker.next().await;
+        // std::thread::sleep(time::Duration::from_millis(10));
+    }
 }
