@@ -6,17 +6,19 @@ use ws2812_spi::Ws2812;
 use embedded_hal::spi::SpiBus;
 use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 
+use std::sync::{Arc, Mutex};
+
 const LED_NUM: usize = 25;
 // const DEFAULT_BRIGHTNESS: u8 = 100;
 
 #[cfg(feature = "use_dotstar")]
 pub struct Sleds<SPI> {
-    sleds: Apa102<SPI>,
+    sleds: Arc<Mutex<Apa102<SPI>>>,
 }
 
 #[cfg(not(feature = "use_dotstar"))]
 pub struct Sleds<SPI> {
-    sleds: Ws2812<SPI>,
+    sleds: Arc<Mutex<Ws2812<SPI>>>,
 }
 
 impl<SPI: SpiBus> Sleds<SPI> {
@@ -30,7 +32,9 @@ impl<SPI: SpiBus> Sleds<SPI> {
         #[cfg(not(feature = "use_dotstar"))]
         let sleds = Ws2812::new(spi_bus);
 
-        Self { sleds }
+        Self {
+            sleds: Arc::new(Mutex::new(sleds)),
+        }
     }
 
     pub fn welcome(&mut self) {
@@ -44,7 +48,11 @@ impl<SPI: SpiBus> Sleds<SPI> {
             });
             data[i] = color;
             hue = (hue + 256 / LED_NUM as u16) % 256;
-            self.sleds.write(gamma(data.iter().cloned())).unwrap();
+            self.sleds
+                .lock()
+                .unwrap()
+                .write(gamma(data.iter().cloned()))
+                .unwrap();
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
 
@@ -58,7 +66,11 @@ impl<SPI: SpiBus> Sleds<SPI> {
             data[i] = color;
             hue = (hue + 256 / LED_NUM as u16) % 256;
         }
-        self.sleds.write(gamma(data.iter().cloned())).unwrap();
+        self.sleds
+            .lock()
+            .unwrap()
+            .write(gamma(data.iter().cloned()))
+            .unwrap();
     }
 
     pub fn show_time(&mut self, h: u8, m: u8) {
@@ -172,6 +184,10 @@ impl<SPI: SpiBus> Sleds<SPI> {
             };
         }
 
-        self.sleds.write(gamma(data.iter().cloned())).unwrap();
+        self.sleds
+            .lock()
+            .unwrap()
+            .write(gamma(data.iter().cloned()))
+            .unwrap();
     }
 }
