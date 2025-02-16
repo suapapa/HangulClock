@@ -1,4 +1,3 @@
-mod encoder;
 mod global;
 mod menu;
 mod net;
