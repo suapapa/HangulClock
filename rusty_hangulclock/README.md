@@ -13,7 +13,7 @@ Hardware:
 ### Pre requirement
 Install toolchain (only for one time):
 ```sh
-cargo install espup cargo-espflash
+cargo install espup cargo-espflash ldproxy
 espup install
 ```
 
