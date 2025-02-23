@@ -8,6 +8,9 @@ use esp_idf_svc::wifi::{AsyncWifi, EspWifi};
 use esp_idf_svc::wifi::{WpsConfig, WpsFactoryInfo, WpsStatus, WpsType};
 use log::{info, warn};
 
+const WIFI_SSID: &str = env!("WIFI_SSID");
+const WIFI_PASS: &str = env!("WIFI_PASS");
+
 pub async fn net_loop(
     wifi: &mut AsyncWifi<EspWifi<'static>>,
     // mut debug_led: impl embedded_hal::digital::OutputPin,
@@ -20,15 +23,15 @@ pub async fn net_loop(
             let mut cmd_net = global::CMD_NET.lock().unwrap();
 
             match cmd_net.as_str() {
-                "WPS" => {
-                    info!("Received WPS command");
-                    match connect_wps(wifi).await {
-                        Ok(_) => (),
-                        Err(e) => {
-                            warn!("Failed to connect to wifi with wps: {:?}", e);
-                        }
-                    }
-                }
+                // "WPS" => {
+                //     info!("Received WPS command");
+                //     match connect_wps(wifi).await {
+                //         Ok(_) => (),
+                //         Err(e) => {
+                //             warn!("Failed to connect to wifi with wps: {:?}", e);
+                //         }
+                //     }
+                // }
                 "NTP" => {
                     info!("Received NTP command");
                     match sync_time_with_wifi(wifi).await {
@@ -64,68 +67,68 @@ const WPS_CONFIG: WpsConfig = WpsConfig {
     },
 };
 
-pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
-    let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
-        ssid: "homin_outside".try_into().unwrap(),
-        bssid: None,
-        auth_method: AuthMethod::WPA2Personal,
-        password: "homin_outside_pass".try_into().unwrap(),
-        channel: None,
-        ..Default::default()
-    });
-    wifi.set_configuration(&wifi_configuration)?;
+// pub async fn connect_wps(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<()> {
+//     let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
+//         ssid: "homin_outside".try_into().unwrap(),
+//         bssid: None,
+//         auth_method: AuthMethod::WPA2Personal,
+//         password: "homin_outside_pass".try_into().unwrap(),
+//         channel: None,
+//         ..Default::default()
+//     });
+//     wifi.set_configuration(&wifi_configuration)?;
 
-    wifi.start().await?;
-    info!("Wifi started");
+//     wifi.start().await?;
+//     info!("Wifi started");
 
-    unsafe { esp_wifi_set_max_tx_power(34) };
+//     unsafe { esp_wifi_set_max_tx_power(34) };
 
-    info!("Starting WPS...");
-    match wifi.start_wps(&WPS_CONFIG).await? {
-        WpsStatus::SuccessConnected => (),
-        WpsStatus::SuccessMultipleAccessPoints(credentials) => {
-            log::info!("received multiple credentials, connecting to first one:");
-            for i in &credentials {
-                log::info!(" - ssid: {}", i.ssid);
-            }
-            let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
-                ssid: credentials[0].ssid.clone(),
-                bssid: None,
-                auth_method: AuthMethod::WPA2Personal,
-                password: credentials[1].passphrase.clone(),
-                channel: None,
-                ..Default::default()
-            });
-            wifi.set_configuration(&wifi_configuration)?;
-        }
-        WpsStatus::Failure => anyhow::bail!("WPS failure"),
-        WpsStatus::Timeout => anyhow::bail!("WPS timeout"),
-        WpsStatus::Pin(_) => anyhow::bail!("WPS pin"),
-        WpsStatus::PbcOverlap => anyhow::bail!("WPS PBC overlap"),
-    }
+//     info!("Starting WPS...");
+//     match wifi.start_wps(&WPS_CONFIG).await? {
+//         WpsStatus::SuccessConnected => (),
+//         WpsStatus::SuccessMultipleAccessPoints(credentials) => {
+//             log::info!("received multiple credentials, connecting to first one:");
+//             for i in &credentials {
+//                 log::info!(" - ssid: {}", i.ssid);
+//             }
+//             let wifi_configuration: Configuration = Configuration::Client(ClientConfiguration {
+//                 ssid: credentials[0].ssid.clone(),
+//                 bssid: None,
+//                 auth_method: AuthMethod::WPA2Personal,
+//                 password: credentials[1].passphrase.clone(),
+//                 channel: None,
+//                 ..Default::default()
+//             });
+//             wifi.set_configuration(&wifi_configuration)?;
+//         }
+//         WpsStatus::Failure => anyhow::bail!("WPS failure"),
+//         WpsStatus::Timeout => anyhow::bail!("WPS timeout"),
+//         WpsStatus::Pin(_) => anyhow::bail!("WPS pin"),
+//         WpsStatus::PbcOverlap => anyhow::bail!("WPS PBC overlap"),
+//     }
 
-    match wifi.get_configuration()? {
-        Configuration::Client(config) => {
-            info!("Successfully connected to {} using WPS", config.ssid);
-            nvs::set_wifi_cred(&config.ssid.clone(), &config.password.clone())?;
-        }
-        _ => anyhow::bail!("Not in station mode"),
-    };
+//     match wifi.get_configuration()? {
+//         Configuration::Client(config) => {
+//             info!("Successfully connected to {} using WPS", config.ssid);
+//             nvs::set_wifi_cred(&config.ssid.clone(), &config.password.clone())?;
+//         }
+//         _ => anyhow::bail!("Not in station mode"),
+//     };
 
-    wifi.connect().await?;
-    info!("Wifi connected");
+//     wifi.connect().await?;
+//     info!("Wifi connected");
 
-    wifi.wait_netif_up().await?;
-    info!("Wifi netif up");
+//     wifi.wait_netif_up().await?;
+//     info!("Wifi netif up");
 
-    sync_time().await;
-    info!("Time synced");
+//     sync_time().await;
+//     info!("Time synced");
 
-    wifi.stop().await?;
-    info!("Wifi stopped");
+//     wifi.stop().await?;
+//     info!("Wifi stopped");
 
-    return Ok(());
-}
+//     return Ok(());
+// }
 
 pub async fn sync_time_with_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<bool> {
     match nvs::get_wifi_cred() {
@@ -143,7 +146,7 @@ pub async fn sync_time_with_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyh
         }
         Err(e) => {
             warn!("Failed to load wifi cred: {:?}", e);
-            return Err(e);
+            // return Err(e);
         }
     }
 

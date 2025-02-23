@@ -55,18 +55,18 @@ fn main() -> anyhow::Result<()> {
     // // Timer::after(Duration::from_millis(100)).await;
     // disp_res.set_high().unwrap();
 
-    let i2c_config = I2cConfig::new().baudrate(50.kHz().into());
-    let i2c = I2cDriver::new(
-        p.i2c0,
-        p_oled_sda, // SDA
-        p_oled_scl, // SCL
-        &i2c_config,
-    )?;
-    let mut disp: Sh1106GM<_> = Sh1106Builder::new().connect_i2c(i2c).into();
-    disp.init().unwrap();
-    // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180).unwrap();
-    disp.flush().unwrap();
-    // menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
+    // let i2c_config = I2cConfig::new().baudrate(50.kHz().into());
+    // let i2c = I2cDriver::new(
+    //     p.i2c0,
+    //     p_oled_sda, // SDA
+    //     p_oled_scl, // SCL
+    //     &i2c_config,
+    // )?;
+    // let mut disp: Sh1106GM<_> = Sh1106Builder::new().connect_i2c(i2c).into();
+    // disp.init().unwrap();
+    // // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180).unwrap();
+    // disp.flush().unwrap();
+    // // menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,
@@ -103,12 +103,12 @@ fn main() -> anyhow::Result<()> {
 
     let net_task = net::net_loop(&mut wifi);
     let show_time_task = show_time_loop(&mut sleds);
-    let menu_task = menu::menu_loop(&mut disp, menu_sel);
+    // let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
 
     info!("Starting tasks...");
     task::block_on(async {
-        match futures::try_join!(menu_task, net_task, time_sync_task, show_time_task) {
+        match futures::try_join!(net_task, time_sync_task, show_time_task) {
             Ok(_) => info!("All tasks completed"),
             Err(e) => info!("Error in task: {:?}", e),
         }
@@ -183,7 +183,7 @@ where
         let now = time::SystemTime::now();
         let timestamp = now.duration_since(time::UNIX_EPOCH).unwrap().as_millis();
         let datetime = Utc.timestamp_millis_opt(timestamp as i64).unwrap();
-        let datetime_kst = datetime.with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
+        let datetime_kst = datetime.with_timezone(&FixedOffset::east_opt(1 * 3600).unwrap());
         // info!("Current datetime: {}", datetime_kst);
 
         let h: u8 = datetime_kst.hour() as u8;
