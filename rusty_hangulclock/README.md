@@ -13,7 +13,7 @@ Hardware:
 ### Pre requirement
 Install toolchain (only for one time):
 ```sh
-cargo install espup
+cargo install espup cargo-espflash
 espup install
 ```
 
@@ -25,7 +25,7 @@ make flash_dotstar
 
 For neopixel:
 ```sh
-make flash_dotstar
+make flash_neopixel
 ```
 
 ### Factory reset settings:
