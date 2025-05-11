@@ -3,9 +3,10 @@ mod menu;
 mod net;
 mod nvs;
 mod panel;
+mod rotary;
 
 use chrono::prelude::*;
-use embassy_time::{Duration, Ticker, Timer};
+use embassy_time::{Duration, Timer};
 // use embedded_hal::spi::MODE_3;
 use esp_idf_svc::hal::gpio::*;
 use esp_idf_svc::hal::i2c::*;
@@ -28,8 +29,6 @@ use apa102_spi::MODE as SPI_MODE;
 #[cfg(not(feature = "use_dotstar"))]
 use ws2812_spi::MODE as SPI_MODE;
 
-use rotary_encoder_hal::{Direction, Rotary};
-use global::RotaryEvent;
 
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
@@ -112,7 +111,7 @@ fn main() -> anyhow::Result<()> {
     let show_time_task = show_time_loop(&mut sleds);
     let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
-    let rotary_encoder_task = rotary_encoder_loop(menu_r1, menu_r2);
+    let rotary_encoder_task = rotary::rotary_encoder_loop(menu_r1, menu_r2);
 
     info!("Starting tasks...");
     task::block_on(async {
@@ -211,58 +210,4 @@ where
         Timer::after(Duration::from_secs(1)).await;
     }
     // Ok(())
-}
-
-async fn rotary_encoder_loop(
-    menu_r1: impl embedded_hal::digital::InputPin,
-    menu_r2: impl embedded_hal::digital::InputPin,
-) -> anyhow::Result<()> {
-    info!("Starting rotary_encoder_loop()...");
-
-    let mut enc = Rotary::new(menu_r1, menu_r2);
-    let mut ticker = Ticker::every(Duration::from_millis(6)); // Reduced sampling time
-    let mut last_direction = Direction::None;
-    let mut debounce_count = 0;
-    const DEBOUNCE_THRESHOLD: u8 = 2; // Reduced threshold
-
-    loop {
-        match enc.update().unwrap() {
-            Direction::Clockwise => {
-                if last_direction != Direction::Clockwise {
-                    debounce_count = 0;
-                    last_direction = Direction::Clockwise;
-                }
-                debounce_count += 1;
-                if debounce_count >= DEBOUNCE_THRESHOLD {
-                    info!("Clockwise");
-                    if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
-                        *event = RotaryEvent::Clockwise;
-                    }
-                    debounce_count = 0;
-                }
-            }
-            Direction::CounterClockwise => {
-                if last_direction != Direction::CounterClockwise {
-                    debounce_count = 0;
-                    last_direction = Direction::CounterClockwise;
-                }
-                debounce_count += 1;
-                if debounce_count >= DEBOUNCE_THRESHOLD {
-                    info!("CounterClockwise");
-                    if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
-                        *event = RotaryEvent::CounterClockwise;
-                    }
-                    debounce_count = 0;
-                }
-            }
-            Direction::None => {
-                last_direction = Direction::None;
-                debounce_count = 0;
-                if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
-                    *event = RotaryEvent::None;
-                }
-            }
-        }
-        ticker.next().await;
-    }
 }
