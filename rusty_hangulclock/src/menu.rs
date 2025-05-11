@@ -12,8 +12,6 @@ pub async fn menu_loop(
 ) -> anyhow::Result<()> {
     info!("staring menu_loop()...");
 
-    // let mut in_menu = false;
-
     let mut menu = 0;
     let menus = ["WPS", "NTP", "EXIT"];
     let menu_max = menus.len();
@@ -26,15 +24,12 @@ pub async fn menu_loop(
         {
             let mut in_menu = global::IN_MENU.lock().unwrap();
             if !(*in_menu) {
-                // let disp_time = { global::LAST_DISP_TIME.lock().unwrap() };
                 draw_text(disp, &format!("Rusty HangulClock\npress to enter menu"))?;
                 if p_sel.is_low().unwrap() {
                     info!("enter menu");
                     *in_menu = true;
                     menu = 0;
                 }
-
-                // Timer::after(Duration::from_millis(300)).await;
                 continue;
             }
         }
@@ -43,6 +38,21 @@ pub async fn menu_loop(
             disp,
             &format!("= MENU =\n{}\ns:next\nl:decide", &(menus[menu])),
         )?;
+
+        // Check rotary encoder events
+        if let Ok(event) = global::ROTARY_EVENT.try_lock() {
+            match *event {
+                global::RotaryEvent::Clockwise => {
+                    menu = (menu + 1) % menu_max;
+                    info!("Menu changed to: {}", menu);
+                }
+                global::RotaryEvent::CounterClockwise => {
+                    menu = if menu == 0 { menu_max - 1 } else { menu - 1 };
+                    info!("Menu changed to: {}", menu);
+                }
+                global::RotaryEvent::None => {}
+            }
+        }
 
         p_sel.wait_for_low().await.unwrap();
         let ts_low = get_ts();
@@ -94,7 +104,6 @@ pub async fn menu_loop(
                     info!("EXIT selected");
                     draw_text(disp, "* EXIT *")?;
                     *in_menu = false;
-                    // Do something
                 }
                 _ => {
                     info!("Unknown menu selected");

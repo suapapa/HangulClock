@@ -5,8 +5,16 @@ use std::sync::{
     Mutex,
 };
 
+#[derive(Debug, Clone, Copy)]
+pub enum RotaryEvent {
+    Clockwise,
+    CounterClockwise,
+    None,
+}
+
 lazy_static! {
     pub static ref TIME_SYNCED: Mutex<bool> = Mutex::new(false);
     pub static ref CMD_NET: Mutex<String> = Mutex::new(String::new());
     pub static ref IN_MENU: Mutex<bool> = Mutex::new(false);
+    pub static ref ROTARY_EVENT: Mutex<RotaryEvent> = Mutex::new(RotaryEvent::None);
 }
