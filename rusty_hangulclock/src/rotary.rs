@@ -45,12 +45,12 @@ pub async fn rotary_encoder_loop(
                     debounce_count = 0;
                 }
             }
-            Direction::None => {
-                last_direction = Direction::None;
-                debounce_count = 0;
-                if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
-                    *event = global::RotaryEvent::None;
-                }
+            _ => {
+                // last_direction = Direction::None;
+                // debounce_count = 0;
+                // if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
+                //     *event = global::RotaryEvent::None;
+                // }
             }
         }
         ticker.next().await;
