@@ -22,9 +22,13 @@ pub async fn menu_loop(
         Timer::after(Duration::from_millis(50)).await;
         let mut in_menu = global::IN_MENU.lock().unwrap();
         if !(*in_menu) {
+            let h = *global::CUR_H.lock().unwrap();
+            let m = *global::CUR_M.lock().unwrap();
+            let time_str = format!("{:02}:{:02}", h, m);
+
             draw_text(
                 disp,
-                &format!("Rusty HangulClock\nrotate knob to\nenter menu"),
+                &format!("Rusty HangulClock\n{}\nrotate knob to\nenter menu", time_str),
             )?;
             if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
                 match *event {

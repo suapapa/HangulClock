@@ -29,7 +29,6 @@ use apa102_spi::MODE as SPI_MODE;
 #[cfg(not(feature = "use_dotstar"))]
 use ws2812_spi::MODE as SPI_MODE;
 
-
 fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
@@ -72,7 +71,10 @@ fn main() -> anyhow::Result<()> {
     disp.init().unwrap();
     // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180).unwrap();
     disp.flush().unwrap();
-    menu::draw_text(&mut disp, &format!("Rusty HangulClock\nno.7\ninitializing..."))?;
+    menu::draw_text(
+        &mut disp,
+        &format!("Rusty HangulClock\nno.7\ninitializing..."),
+    )?;
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,
@@ -158,7 +160,6 @@ where
     let mut last_h: u8 = 0;
     let mut last_m: u8 = 0;
     loop {
-        Timer::after(Duration::from_secs(10)).await;
         match global::IN_MENU.try_lock() {
             Ok(in_menu) => {
                 if *in_menu {
@@ -182,9 +183,19 @@ where
                         }
                         Err(_) => {
                             info!("CMD_NET in use");
+                            continue;
                         }
                     }
-                    continue;
+                    loop {
+                        Timer::after(Duration::from_millis(1000)).await;
+                        if let Ok(mut result) = global::RESULT_NET.try_lock() {
+                            if result.as_str() == "OK" || result.as_str() == "NG" {
+                                info!("NTP cmd completed: {}", result.as_str());
+                                *result = "".to_string();
+                                // continue;
+                            }
+                        }
+                    }
                 }
             }
             Err(_) => {
@@ -204,10 +215,19 @@ where
         if last_h != h || last_m != m {
             last_h = h;
             last_m = m;
+            {
+                // h, m 값을 전역 변수에 저장
+                if let Ok(mut global_h) = global::CUR_H.try_lock() {
+                    *global_h = h;
+                }
+                if let Ok(mut global_m) = global::CUR_M.try_lock() {
+                    *global_m = m;
+                }
+            }
             info!("Time updated, h: {}, m: {}", h, m);
             sleds.show_time(h, m);
         }
-        Timer::after(Duration::from_secs(1)).await;
+        Timer::after(Duration::from_secs(10)).await;
     }
     // Ok(())
 }
