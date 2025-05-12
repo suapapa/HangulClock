@@ -157,20 +157,25 @@ where
 {
     info!("Starting show_time_loop()...");
 
+    let mut skip_display: bool; // = false;
+    let mut ntp_ok: bool; // = false;
     let mut last_h: u8 = 0;
     let mut last_m: u8 = 0;
     loop {
         match global::IN_MENU.try_lock() {
             Ok(in_menu) => {
-                if *in_menu {
-                    warn!("IN_MENU in use");
-                    continue;
-                }
+                skip_display = *in_menu;
             }
             Err(_) => {
                 // warn!("IN_MENU in use");
+                Timer::after(Duration::from_secs(1)).await;
                 continue;
             }
+        }
+
+        if skip_display {
+            Timer::after(Duration::from_secs(1)).await;
+            continue;
         }
 
         match global::TIME_SYNCED.try_lock() {
@@ -192,16 +197,24 @@ where
                             if result.as_str() == "OK" || result.as_str() == "NG" {
                                 info!("NTP cmd completed: {}", result.as_str());
                                 *result = "".to_string();
-                                // continue;
+                                ntp_ok = result.as_str() == "OK";
+                                break;
                             }
                         }
                     }
+                } else {
+                    ntp_ok = true;
                 }
             }
             Err(_) => {
                 warn!("TIME_SYNCED in use");
                 continue;
             }
+        }
+
+        if !ntp_ok {
+            Timer::after(Duration::from_secs(10)).await;
+            continue;
         }
 
         let now = time::SystemTime::now();
