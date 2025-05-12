@@ -5,11 +5,17 @@ use ws2812_spi::Ws2812;
 
 use embedded_hal::spi::SpiBus;
 use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
+use crate::global;
 
 use std::sync::{Arc, Mutex};
 
 const LED_NUM: usize = 25;
 // const DEFAULT_BRIGHTNESS: u8 = 100;
+
+// Global LED color settings
+pub static mut LED_HUE: u8 = 0;
+pub static mut LED_SAT: u8 = 255;
+pub static mut LED_VAL: u8 = 255;
 
 #[cfg(feature = "use_dotstar")]
 pub struct Sleds<SPI> {
@@ -61,7 +67,7 @@ impl<SPI: SpiBus> Sleds<SPI> {
             let color = hsv2rgb(Hsv {
                 hue: hue as u8,
                 sat: 255,
-                val: 128, // 32,
+                val: 255, // 128
             });
             data[i] = color;
             hue = (hue + 256 / LED_NUM as u16) % 256;
@@ -175,13 +181,18 @@ impl<SPI: SpiBus> Sleds<SPI> {
     }
 
     fn show_leds(&mut self, leds: Vec<u8>) {
+        let leds = remap(leds);
         let mut data = [RGB8::default(); LED_NUM];
+
+        let led_hsv = Hsv {
+            hue: *global::LED_HUE.lock().unwrap(),
+            sat: *global::LED_SAT.lock().unwrap(),
+            val: *global::LED_VAL.lock().unwrap(),
+        };
+        let led_rgb = hsv2rgb(led_hsv);
+
         for l in leds {
-            data[l as usize] = RGB8 {
-                r: 0x65, // DEFAULT_BRIGHTNESS,
-                g: 0x5b, // DEFAULT_BRIGHTNESS,
-                b: 0xf9, // DEFAULT_BRIGHTNESS,
-            };
+            data[l as usize] = led_rgb;
         }
 
         self.sleds
@@ -190,4 +201,12 @@ impl<SPI: SpiBus> Sleds<SPI> {
             .write(gamma(data.iter().cloned()))
             .unwrap();
     }
+}
+
+fn remap(leds: Vec<u8>) -> Vec<u8> {
+    // 0~24 -> 24~0으로 매핑하는 테이블 생성
+    let mapping: [u8; 25] = [
+        24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    ];
+    leds.into_iter().map(|x| mapping[x as usize]).collect()
 }

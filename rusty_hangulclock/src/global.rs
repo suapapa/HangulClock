@@ -4,12 +4,13 @@ use std::sync::{
     // mpsc::{self, Receiver, Sender},
     Mutex,
 };
+use std::sync::atomic::{AtomicBool, Ordering};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RotaryEvent {
+    None,
     Clockwise,
     CounterClockwise,
-    None,
 }
 
 lazy_static! {
@@ -20,4 +21,7 @@ lazy_static! {
     pub static ref ROTARY_EVENT: Mutex<RotaryEvent> = Mutex::new(RotaryEvent::None);
     pub static ref CUR_H: Mutex<u8> = Mutex::new(0);
     pub static ref CUR_M: Mutex<u8> = Mutex::new(0);
+    pub static ref LED_HUE: Mutex<u8> = Mutex::new(0);
+    pub static ref LED_SAT: Mutex<u8> = Mutex::new(255);
+    pub static ref LED_VAL: Mutex<u8> = Mutex::new(255);
 }

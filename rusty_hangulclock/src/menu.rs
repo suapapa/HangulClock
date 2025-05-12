@@ -13,10 +13,12 @@ pub async fn menu_loop(
     info!("staring menu_loop()...");
 
     let mut menu = 0;
-    let menus = ["WPS", "NTP", "EXIT"];
+    let menus = ["WPS", "NTP", "LED HUE", "LED SAT", "LED VAL", "EXIT"];
     let menu_len = menus.len();
 
     let mut menu_enter_ts: u128 = get_ts();
+    let mut sub_menu = false;
+    let mut sub_menu_value = 0;
 
     loop {
         Timer::after(Duration::from_millis(50)).await;
@@ -37,6 +39,7 @@ pub async fn menu_loop(
                         info!("enter menu");
                         *in_menu = true;
                         menu = 0;
+                        sub_menu = false;
                         menu_enter_ts = get_ts();
                     }
                     _ => {}
@@ -50,128 +53,177 @@ pub async fn menu_loop(
                 continue;
             }
 
-            draw_text(
-                disp,
-                &format!(
-                    "= MENU {}/{} =\n{}\npress to\ndecide",
-                    menu + 1,
-                    menu_len,
-                    &(menus[menu])
-                ),
-            )?;
+            if sub_menu {
+                let mut value = match menu {
+                    2 => *global::LED_HUE.lock().unwrap(),
+                    3 => *global::LED_SAT.lock().unwrap(),
+                    4 => *global::LED_VAL.lock().unwrap(),
+                    _ => 0,
+                };
 
-            if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
-                match *event {
-                    global::RotaryEvent::Clockwise => {
-                        menu = (menu + 1) % menu_len;
-                        info!("Menu changed to: {}", menu);
-                        *event = global::RotaryEvent::None;
+                draw_text(
+                    disp,
+                    &format!(
+                        "= {} =\n{}\npress to\ndecide",
+                        menus[menu],
+                        value
+                    ),
+                )?;
+
+                if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
+                    match *event {
+                        global::RotaryEvent::Clockwise => {
+                            value = value.saturating_add(1);
+                            *event = global::RotaryEvent::None;
+                        }
+                        global::RotaryEvent::CounterClockwise => {
+                            value = value.saturating_sub(1);
+                            *event = global::RotaryEvent::None;
+                        }
+                        _ => {}
                     }
-                    global::RotaryEvent::CounterClockwise => {
-                        menu = if menu == 0 { menu_len - 1 } else { menu - 1 };
-                        info!("Menu changed to: {}", menu);
-                        *event = global::RotaryEvent::None;
+
+                    match menu {
+                        2 => *global::LED_HUE.lock().unwrap() = value,
+                        3 => *global::LED_SAT.lock().unwrap() = value,
+                        4 => *global::LED_VAL.lock().unwrap() = value,
+                        _ => {}
                     }
-                    global::RotaryEvent::None => {
-                        if p_sel.is_low().unwrap() {
-                            info!("decide");
-                            // *in_menu = false;
-                            match menu {
-                                0 => {
-                                    info!("WPS selected");
-                                    match global::CMD_NET.try_lock() {
-                                        Ok(mut cmd_net) => {
-                                            draw_text(
-                                                disp,
-                                                &format!(
-                                                    "MENU {}/{}\n**WPS**\nwait a moment",
-                                                    menu + 1,
-                                                    menu_len,
-                                                ),
-                                            )?;
-                                            *cmd_net = "WPS".to_string();
-                                            info!("WPS cmd sent");
-                                        }
-                                        Err(_) => {
-                                            info!("CMD_NET in use");
-                                            continue;
-                                        }
-                                    }
-                                    loop {
-                                        Timer::after(Duration::from_millis(1000)).await;
-                                        if let Ok(mut result) = global::RESULT_NET.try_lock() {
-                                            if result.as_str() == "OK" || result.as_str() == "NG" {
-                                                info!("WPS cmd completed");
+
+                    if p_sel.is_low().unwrap() {
+                        sub_menu = false;
+                        Timer::after(Duration::from_millis(200)).await;
+                    }
+                }
+            } else {
+                draw_text(
+                    disp,
+                    &format!(
+                        "= MENU {}/{} =\n{}\npress to\ndecide",
+                        menu + 1,
+                        menu_len,
+                        &(menus[menu])
+                    ),
+                )?;
+
+                if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
+                    match *event {
+                        global::RotaryEvent::Clockwise => {
+                            menu = (menu + 1) % menu_len;
+                            info!("Menu changed to: {}", menu);
+                            *event = global::RotaryEvent::None;
+                        }
+                        global::RotaryEvent::CounterClockwise => {
+                            menu = if menu == 0 { menu_len - 1 } else { menu - 1 };
+                            info!("Menu changed to: {}", menu);
+                            *event = global::RotaryEvent::None;
+                        }
+                        global::RotaryEvent::None => {
+                            if p_sel.is_low().unwrap() {
+                                info!("decide");
+                                match menu {
+                                    0 => {
+                                        info!("WPS selected");
+                                        match global::CMD_NET.try_lock() {
+                                            Ok(mut cmd_net) => {
                                                 draw_text(
                                                     disp,
                                                     &format!(
-                                                        "MENU {}/{}\nWPS\n**{}**",
+                                                        "MENU {}/{}\n**WPS**\nwait a moment",
                                                         menu + 1,
                                                         menu_len,
-                                                        result.as_str(),
                                                     ),
                                                 )?;
-                                                Timer::after(Duration::from_millis(1000)).await;
-                                                *in_menu = false;
-                                                *result = "".to_string();
-                                                break;
+                                                *cmd_net = "WPS".to_string();
+                                                info!("WPS cmd sent");
+                                            }
+                                            Err(_) => {
+                                                info!("CMD_NET in use");
+                                                continue;
+                                            }
+                                        }
+                                        loop {
+                                            Timer::after(Duration::from_millis(1000)).await;
+                                            if let Ok(mut result) = global::RESULT_NET.try_lock() {
+                                                if result.as_str() == "OK" || result.as_str() == "NG" {
+                                                    info!("WPS cmd completed");
+                                                    draw_text(
+                                                        disp,
+                                                        &format!(
+                                                            "MENU {}/{}\nWPS\n**{}**",
+                                                            menu + 1,
+                                                            menu_len,
+                                                            result.as_str(),
+                                                        ),
+                                                    )?;
+                                                    Timer::after(Duration::from_millis(1000)).await;
+                                                    *in_menu = false;
+                                                    *result = "".to_string();
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                1 => {
-                                    info!("NTP selected");
-                                    match global::CMD_NET.try_lock() {
-                                        Ok(mut cmd_net) => {
-                                            draw_text(
-                                                disp,
-                                                &format!(
-                                                    "MENU {}/{}\n**NTP**\nwait a moment",
-                                                    menu + 1,
-                                                    menu_len,
-                                                ),
-                                            )?;
-                                            *cmd_net = "NTP".to_string();
-                                            info!("NTP cmd sent");
-                                        }
-                                        Err(_) => {
-                                            info!("CMD_NET in use");
-                                            continue;
-                                        }
-                                    }
-                                    loop {
-                                        Timer::after(Duration::from_millis(1000)).await;
-                                        if let Ok(mut result) = global::RESULT_NET.try_lock() {
-                                            if result.as_str() == "OK" || result.as_str() == "NG" {
-                                                info!("NTP cmd completed");
+                                    1 => {
+                                        info!("NTP selected");
+                                        match global::CMD_NET.try_lock() {
+                                            Ok(mut cmd_net) => {
                                                 draw_text(
                                                     disp,
                                                     &format!(
-                                                        "MENU {}/{}\nNTP\n**{}**",
+                                                        "MENU {}/{}\n**NTP**\nwait a moment",
                                                         menu + 1,
                                                         menu_len,
-                                                        result.as_str(),
                                                     ),
                                                 )?;
-                                                Timer::after(Duration::from_millis(1000)).await;
-                                                *in_menu = false;
-                                                *result = "".to_string();
-                                                break;
+                                                *cmd_net = "NTP".to_string();
+                                                info!("NTP cmd sent");
+                                            }
+                                            Err(_) => {
+                                                info!("CMD_NET in use");
+                                                continue;
+                                            }
+                                        }
+                                        loop {
+                                            Timer::after(Duration::from_millis(1000)).await;
+                                            if let Ok(mut result) = global::RESULT_NET.try_lock() {
+                                                if result.as_str() == "OK" || result.as_str() == "NG" {
+                                                    info!("NTP cmd completed");
+                                                    draw_text(
+                                                        disp,
+                                                        &format!(
+                                                            "MENU {}/{}\nNTP\n**{}**",
+                                                            menu + 1,
+                                                            menu_len,
+                                                            result.as_str(),
+                                                        ),
+                                                    )?;
+                                                    Timer::after(Duration::from_millis(1000)).await;
+                                                    *in_menu = false;
+                                                    *result = "".to_string();
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                2 => {
-                                    info!("EXIT selected");
-                                    draw_text(
-                                        disp,
-                                        &format!("MENU {}/{}\n**EXIT**", menu + 1, menu_len,),
-                                    )?;
-                                    Timer::after(Duration::from_millis(1000)).await;
-                                    *in_menu = false;
-                                }
-                                _ => {
-                                    info!("Unknown menu selected");
+                                    2 | 3 | 4 => {
+                                        // LED color settings
+                                        sub_menu = true;
+                                        Timer::after(Duration::from_millis(200)).await;
+                                    }
+                                    5 => {
+                                        // EXIT
+                                        info!("EXIT selected");
+                                        draw_text(
+                                            disp,
+                                            &format!("MENU {}/{}\n**EXIT**", menu + 1, menu_len,),
+                                        )?;
+                                        Timer::after(Duration::from_millis(1000)).await;
+                                        *in_menu = false;
+                                    }
+                                    _ => {
+                                        info!("Unknown menu selected");
+                                    }
                                 }
                             }
                         }
