@@ -72,7 +72,7 @@ fn main() -> anyhow::Result<()> {
     disp.init().unwrap();
     // disp.set_rotation(sh1106::prelude::DisplayRotation::Rotate180).unwrap();
     disp.flush().unwrap();
-    // menu::draw_text(&mut disp, "Rusty\nHangulClock")?;
+    menu::draw_text(&mut disp, &format!("Rusty HangulClock\nno.7\ninitializing..."))?;
 
     let mut spi_driver = SpiDriver::new(
         p_sled_spi,

@@ -18,7 +18,6 @@ pub async fn menu_loop(
 
     let mut menu_enter_ts: u128 = get_ts();
 
-    draw_text(disp, &format!("Rusty HangulClock\npress to enter menu"))?;
     loop {
         Timer::after(Duration::from_millis(50)).await;
         let mut in_menu = global::IN_MENU.lock().unwrap();
@@ -91,6 +90,28 @@ pub async fn menu_loop(
                                         }
                                         Err(_) => {
                                             info!("CMD_NET in use");
+                                            continue;
+                                        }
+                                    }
+                                    loop {
+                                        Timer::after(Duration::from_millis(1000)).await;
+                                        if let Ok(mut result) = global::RESULT_NET.try_lock() {
+                                            if result.as_str() == "OK" || result.as_str() == "NG" {
+                                                info!("WPS cmd completed");
+                                                draw_text(
+                                                    disp,
+                                                    &format!(
+                                                        "MENU {}/{}\nWPS\n**{}**",
+                                                        menu + 1,
+                                                        menu_len,
+                                                        result.as_str(),
+                                                    ),
+                                                )?;
+                                                Timer::after(Duration::from_millis(1000)).await;
+                                                *in_menu = false;
+                                                *result = "".to_string();
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -111,6 +132,28 @@ pub async fn menu_loop(
                                         }
                                         Err(_) => {
                                             info!("CMD_NET in use");
+                                            continue;
+                                        }
+                                    }
+                                    loop {
+                                        Timer::after(Duration::from_millis(1000)).await;
+                                        if let Ok(mut result) = global::RESULT_NET.try_lock() {
+                                            if result.as_str() == "OK" || result.as_str() == "NG" {
+                                                info!("NTP cmd completed");
+                                                draw_text(
+                                                    disp,
+                                                    &format!(
+                                                        "MENU {}/{}\nNTP\n**{}**",
+                                                        menu + 1,
+                                                        menu_len,
+                                                        result.as_str(),
+                                                    ),
+                                                )?;
+                                                Timer::after(Duration::from_millis(1000)).await;
+                                                *in_menu = false;
+                                                *result = "".to_string();
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -118,12 +161,9 @@ pub async fn menu_loop(
                                     info!("EXIT selected");
                                     draw_text(
                                         disp,
-                                        &format!(
-                                            "MENU {}/{}\n**EXIT**",
-                                            menu + 1,
-                                            menu_len,
-                                        ),
+                                        &format!("MENU {}/{}\n**EXIT**", menu + 1, menu_len,),
                                     )?;
+                                    Timer::after(Duration::from_millis(1000)).await;
                                     *in_menu = false;
                                 }
                                 _ => {
@@ -135,82 +175,6 @@ pub async fn menu_loop(
                 }
             }
         }
-
-        // Check rotary encoder events
-
-        // p_sel.wait_for_low().await.unwrap();
-        // let ts_low = get_ts();
-        // p_sel.wait_for_high().await.unwrap();
-        // let ts_high = get_ts();
-        // if ts_high - ts_low < 500 {
-        //     info!("sel press: {}", menu);
-        //     decide_pressed = false;
-        // } else {
-        //     info!("enter press: {}", menu);
-        //     decide_pressed = true;
-        // }
-
-        // if !decide_pressed {
-        //     // change menu
-        //     menu = (menu + 1) % menu_max;
-        // }
-
-        /*
-        if decide_pressed {
-            let mut in_menu = global::IN_MENU.lock().unwrap();
-            match menu {
-                0 => {
-                    info!("WPS selected");
-                    match global::CMD_NET.try_lock() {
-                        Ok(mut cmd_net) => {
-                            draw_text(disp, "* WPS *")?;
-                            *cmd_net = "WPS".to_string();
-                            info!("WPS cmd sent");
-                        }
-                        Err(_) => {
-                            info!("CMD_NET in use");
-                        }
-                    }
-                }
-                1 => {
-                    info!("NTP selected");
-                    match global::CMD_NET.try_lock() {
-                        Ok(mut cmd_net) => {
-                            draw_text(disp, "* NPT *")?;
-                            *cmd_net = "NTP".to_string();
-                            info!("NTP cmd sent");
-                        }
-                        Err(_) => {
-                            info!("CMD_NET in use");
-                        }
-                    }
-                }
-                2 => {
-                    info!("EXIT selected");
-                    draw_text(disp, "* EXIT *")?;
-                    *in_menu = false;
-                }
-                _ => {
-                    info!("Unknown menu selected");
-                }
-            }
-
-            loop {
-                Timer::after(Duration::from_secs(30)).await;
-                match global::CMD_NET.try_lock() {
-                    Ok(cmd_net) => {
-                        if cmd_net.as_str() == "" {
-                            *in_menu = false;
-                            break;
-                        }
-                    }
-                    Err(_) => {
-                        info!("CMD_NET in use");
-                    }
-                }
-            }
-        }
-        */
     }
 }
 

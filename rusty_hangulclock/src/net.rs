@@ -15,7 +15,7 @@ pub async fn net_loop(
     // debug_led.set_high().unwrap();
 
     loop {
-        Timer::after(Duration::from_secs(1)).await;
+        Timer::after(Duration::from_millis(100)).await;
         {
             let mut cmd_net = global::CMD_NET.lock().unwrap();
 
@@ -23,18 +23,34 @@ pub async fn net_loop(
                 "WPS" => {
                     info!("Received WPS command");
                     match connect_wps(wifi).await {
-                        Ok(_) => (),
+                        Ok(_) => {
+                            info!("WPS cmd completed");
+                            *cmd_net = "".to_string();
+                            let mut result = global::RESULT_NET.lock().unwrap();
+                            *result = "OK".to_string();
+                        }
                         Err(e) => {
                             warn!("Failed to connect to wifi with wps: {:?}", e);
+                            *cmd_net = "".to_string();
+                            let mut result = global::RESULT_NET.lock().unwrap();
+                            *result = "NG".to_string();
                         }
                     }
                 }
                 "NTP" => {
                     info!("Received NTP command");
                     match sync_time_with_wifi(wifi).await {
-                        Ok(_) => (),
+                        Ok(_) => {
+                            info!("NTP cmd completed");
+                            *cmd_net = "".to_string();
+                            let mut result = global::RESULT_NET.lock().unwrap();
+                            *result = "OK".to_string();
+                        }
                         Err(e) => {
                             warn!("Failed to sync time: {:?}", e);
+                            *cmd_net = "".to_string();
+                            let mut result = global::RESULT_NET.lock().unwrap();
+                            *result = "NG".to_string();
                         }
                     }
                 }
@@ -43,11 +59,11 @@ pub async fn net_loop(
                 }
             }
 
-            if cmd_net.as_str() != "" {
-                // info!("Clearing command");
-                // let mut cmd_net = global::CMD_NET.lock().unwrap();
-                *cmd_net = "".to_string();
-            }
+            // if cmd_net.as_str() != "" {
+            //     // info!("Clearing command");
+            //     // let mut cmd_net = global::CMD_NET.lock().unwrap();
+            //     *cmd_net = "".to_string();
+            // }
         }
 
         // debug_led.set_low().unwrap();
