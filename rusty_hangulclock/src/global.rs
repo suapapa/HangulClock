@@ -4,7 +4,6 @@ use std::sync::{
     // mpsc::{self, Receiver, Sender},
     Mutex,
 };
-use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RotaryEvent {

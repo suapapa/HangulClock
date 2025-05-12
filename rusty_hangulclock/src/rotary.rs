@@ -10,10 +10,10 @@ pub async fn rotary_encoder_loop(
     info!("Starting rotary_encoder_loop()...");
 
     let mut enc = Rotary::new(menu_r1, menu_r2);
-    let mut ticker = Ticker::every(Duration::from_millis(6)); // Reduced sampling time
+    let mut ticker = Ticker::every(Duration::from_millis(10));
     let mut last_direction = Direction::None;
     let mut debounce_count = 0;
-    const DEBOUNCE_THRESHOLD: u8 = 2; // Reduced threshold
+    const DEBOUNCE_THRESHOLD: u8 = 3; // Reduced threshold
 
     loop {
         match enc.update().unwrap() {

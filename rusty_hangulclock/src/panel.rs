@@ -5,17 +5,14 @@ use ws2812_spi::Ws2812;
 
 use embedded_hal::spi::SpiBus;
 use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
-use crate::global;
-
 use std::sync::{Arc, Mutex};
+use log::info;
+
+use crate::global;
+use crate::nvs;
 
 const LED_NUM: usize = 25;
 // const DEFAULT_BRIGHTNESS: u8 = 100;
-
-// Global LED color settings
-pub static mut LED_HUE: u8 = 0;
-pub static mut LED_SAT: u8 = 255;
-pub static mut LED_VAL: u8 = 255;
 
 #[cfg(feature = "use_dotstar")]
 pub struct Sleds<SPI> {
@@ -77,6 +74,13 @@ impl<SPI: SpiBus> Sleds<SPI> {
             .unwrap()
             .write(gamma(data.iter().cloned()))
             .unwrap();
+
+        // load default hsv
+        let (hue, sat, val) = nvs::get_hsv().unwrap();
+        info!("hue: {}, sat: {}, val: {}", hue, sat, val);
+        *global::LED_HUE.lock().unwrap() = hue;
+        *global::LED_SAT.lock().unwrap() = sat;
+        *global::LED_VAL.lock().unwrap() = val;
     }
 
     pub fn show_time(&mut self, h: u8, m: u8) {

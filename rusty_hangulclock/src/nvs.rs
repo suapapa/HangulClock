@@ -110,3 +110,65 @@ pub fn get_wifi_cred() -> anyhow::Result<(String, String)> {
 
     Ok((ssid, pass))
 }
+
+pub fn set_hsv(hue: u8, sat: u8, val: u8) -> anyhow::Result<()> {
+    let nvs_default_partition: EspNvsPartition<NvsCustom> =
+        EspCustomNvsPartition::take("user_nvs")?;
+
+    let test_namespace = "hsv_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+        Ok(nvs) => {
+            info!("Got namespace {:?} from default partition", test_namespace);
+            nvs
+        }
+        Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
+    };
+
+    let hue_tag = "hue";
+    let sat_tag = "sat";
+    let val_tag = "val";
+    
+    match nvs.set_u8(hue_tag, hue) {
+        Ok(_) => info!("{:?} updated", hue_tag),
+        Err(e) => return Err(anyhow::anyhow!("Failed to set {:?}: {:?}", hue_tag, e)),
+    };
+    match nvs.set_u8(sat_tag, sat) {
+        Ok(_) => info!("{:?} updated", sat_tag),
+        Err(e) => return Err(anyhow::anyhow!("Failed to set {:?}: {:?}", sat_tag, e)),
+    };
+    match nvs.set_u8(val_tag, val) {
+        Ok(_) => info!("{:?} updated", val_tag),
+        Err(e) => return Err(anyhow::anyhow!("Failed to set {:?}: {:?}", val_tag, e)),
+    };
+    Ok(())
+}
+
+pub fn get_hsv() -> anyhow::Result<(u8, u8, u8)> {  
+    let nvs_default_partition: EspNvsPartition<NvsCustom> =
+        EspCustomNvsPartition::take("user_nvs")?;
+
+    let test_namespace = "hsv_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+        Ok(nvs) => {
+            info!("Got namespace {:?} from default partition", test_namespace);
+            nvs
+        }
+        Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
+    };
+
+    let hue_tag = "hue";
+    let sat_tag = "sat";
+    let val_tag = "val";
+
+    let hue = nvs.get_u8(hue_tag)
+        .map(|v| v.unwrap_or(0))
+        .unwrap_or(0);
+    let sat = nvs.get_u8(sat_tag)
+        .map(|v| v.unwrap_or(255))
+        .unwrap_or(255);
+    let val = nvs.get_u8(val_tag)
+        .map(|v| v.unwrap_or(255))
+        .unwrap_or(255);
+
+    Ok((hue, sat, val)) 
+}

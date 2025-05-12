@@ -113,7 +113,7 @@ fn main() -> anyhow::Result<()> {
     let show_time_task = show_time_loop(&mut sleds);
     let menu_task = menu::menu_loop(&mut disp, menu_sel);
     let time_sync_task = time_sync_loop();
-    let rotary_encoder_task = rotary::rotary_encoder_loop(menu_r1, menu_r2);
+    let rotary_encoder_task = rotary::rotary_encoder_loop(menu_r2, menu_r1);
 
     info!("Starting tasks...");
     task::block_on(async {
