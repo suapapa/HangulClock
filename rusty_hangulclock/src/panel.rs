@@ -4,9 +4,9 @@ use apa102_spi::Apa102;
 use ws2812_spi::Ws2812;
 
 use embedded_hal::spi::SpiBus;
+use log::info;
 use smart_leds::{gamma, hsv::hsv2rgb, hsv::Hsv, SmartLedsWrite, RGB8};
 use std::sync::{Arc, Mutex};
-use log::info;
 
 use crate::global;
 use crate::nvs;
@@ -116,69 +116,36 @@ impl<SPI: SpiBus> Sleds<SPI> {
         }
 
         let mut leds: Vec<u8> = vec![];
-        /*
-        // start from top right
-        match h {
-            0 | 12 => leds.extend(vec![4, 5, 10]), // 열두시
-            1 => leds.extend(vec![3, 10]),         // 한시
-            2 => leds.extend(vec![5, 10]),         // 두시
-            3 => leds.extend(vec![1, 10]),         // 세시
-            4 => leds.extend(vec![0, 10]),         // 네시
-            5 => leds.extend(vec![2, 7, 10]),      // 다섯시
-            6 => leds.extend(vec![6, 7, 10]),      // 여섯시
-            7 => leds.extend(vec![8, 9, 10]),      // 일곱시
-            8 => leds.extend(vec![14, 13, 10]),    // 여덟시
-            9 => leds.extend(vec![12, 11, 10]),    // 아홉시
-            10 => leds.extend(vec![4, 10]),        // 열시
-            11 => leds.extend(vec![4, 3, 10]),     // 열한시
-            _ => (),
-        }
-        if m10 + m1 != 0 {
-            match m10 {
-                1 => leds.extend(vec![19]),     // 십
-                2 => leds.extend(vec![17, 22]), // 이십
-                3 => leds.extend(vec![18, 19]), // 삼십
-                4 => leds.extend(vec![24, 22]), // 사십
-                5 => leds.extend(vec![23, 22]), // 오십
-                _ => (),
-            }
-            if m1 == 5 {
-                leds.extend(vec![21, 20]); // 오분
-            } else {
-                leds.extend(vec![20]); // 분
-            }
-        }
-        */
 
         // start from bottom left
         match h {
-            0 | 12 => leds.extend(vec![20, 19, 14]), // 열두시
-            1 => leds.extend(vec![21, 14]),          // 한시
-            2 => leds.extend(vec![19, 14]),          // 두시
-            3 => leds.extend(vec![23, 14]),          // 세시
-            4 => leds.extend(vec![24, 14]),          // 네시
-            5 => leds.extend(vec![22, 17, 14]),      // 다섯시
-            6 => leds.extend(vec![18, 17, 14]),      // 여섯시
-            7 => leds.extend(vec![16, 15, 14]),      // 일곱시
-            8 => leds.extend(vec![10, 11, 14]),      // 여덟시
-            9 => leds.extend(vec![12, 13, 14]),      // 아홉시
-            10 => leds.extend(vec![20, 14]),         // 열시
-            11 => leds.extend(vec![20, 21, 14]),     // 열한시
+            0 | 12 => leds.extend(vec![0, 5, 14]), // 열두시
+            1 => leds.extend(vec![1, 14]),         // 한시
+            2 => leds.extend(vec![5, 14]),         // 두시
+            3 => leds.extend(vec![3, 14]),         // 세시
+            4 => leds.extend(vec![4, 14]),         // 네시
+            5 => leds.extend(vec![2, 7, 14]),      // 다섯시
+            6 => leds.extend(vec![6, 7, 14]),      // 여섯시
+            7 => leds.extend(vec![8, 9, 14]),      // 일곱시
+            8 => leds.extend(vec![10, 11, 14]),    // 여덟시
+            9 => leds.extend(vec![12, 13, 14]),    // 아홉시
+            10 => leds.extend(vec![0, 14]),        // 열시
+            11 => leds.extend(vec![0, 1, 14]),     // 열한시
             _ => (),
         }
         if m10 + m1 != 0 {
             match m10 {
-                1 => leds.extend(vec![5]),    // 십
-                2 => leds.extend(vec![7, 2]), // 이십
-                3 => leds.extend(vec![6, 5]), // 삼십
-                4 => leds.extend(vec![0, 2]), // 사십
-                5 => leds.extend(vec![1, 2]), // 오십
+                1 => leds.extend(vec![22]),     // 십
+                2 => leds.extend(vec![17, 19]), // 이십
+                3 => leds.extend(vec![18, 19]), // 삼십
+                4 => leds.extend(vec![20, 22]), // 사십
+                5 => leds.extend(vec![21, 22]), // 오십
                 _ => (),
             }
             if m1 == 5 {
-                leds.extend(vec![3, 4]); // 오분
+                leds.extend(vec![23, 24]); // 오분
             } else {
-                leds.extend(vec![4]); // 분
+                leds.extend(vec![24]); // 분
             }
         }
         self.show_leds(leds);
@@ -209,8 +176,10 @@ impl<SPI: SpiBus> Sleds<SPI> {
 
 fn remap(leds: Vec<u8>) -> Vec<u8> {
     // 0~24 -> 24~0으로 매핑하는 테이블 생성
-    let mapping: [u8; 25] = [
-        24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    let mapping_from_bl_to_top: [u8; 25] = [
+        4, 5, 14, 15, 24, 3, 6, 13, 16, 23, 2, 7, 12, 17, 22, 1, 8, 11, 18, 21, 0, 9, 10, 19, 20,
     ];
-    leds.into_iter().map(|x| mapping[x as usize]).collect()
+    leds.into_iter()
+        .map(|x| mapping_from_bl_to_top[x as usize])
+        .collect()
 }
