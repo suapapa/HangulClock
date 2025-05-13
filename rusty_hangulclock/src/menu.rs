@@ -1,5 +1,6 @@
 use crate::global;
 use crate::nvs;
+use crate::panel;
 use embassy_time::{Duration, Timer};
 use esp_idf_svc::hal::i2c::*;
 // use esp_idf_svc::hal::task;
@@ -101,6 +102,8 @@ pub async fn menu_loop(
                         nvs::set_hsv(hue, sat, val).unwrap();
                     }
                 }
+
+                // sled.turn_on_all();
             } else {
                 draw_text(
                     disp,

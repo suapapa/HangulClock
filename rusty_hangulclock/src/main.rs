@@ -73,7 +73,7 @@ fn main() -> anyhow::Result<()> {
     disp.flush().unwrap();
     menu::draw_text(
         &mut disp,
-        &format!("Rusty HangulClock\nno.7\ninitializing..."),
+        &format!("Rusty HangulClock\nno.6\ninitializing..."),
     )?;
 
     let mut spi_driver = SpiDriver::new(
@@ -89,7 +89,6 @@ fn main() -> anyhow::Result<()> {
     let spi_bus = SpiBusDriver::new(&mut spi_driver, &spi_config)?;
     let mut sleds = panel::Sleds::new(spi_bus);
     sleds.welcome();
-
     let sys_loop = EspSystemEventLoop::take()?;
     let timer_service = EspTaskTimerService::new()?;
     let nvs = EspDefaultNvsPartition::take()?;
@@ -156,6 +155,7 @@ where
     SPI: embedded_hal::spi::SpiBus,
 {
     info!("Starting show_time_loop()...");
+    sleds.turn_on_all();
 
     let mut skip_display: bool; // = false;
     let mut ntp_ok: bool; // = false;

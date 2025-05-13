@@ -102,12 +102,12 @@ impl<SPI: SpiBus> Sleds<SPI> {
         }
 
         if (h == 0 || h == 24) && m10 + m1 == 0 {
-            self.show_leds(vec![9, 8]); // 자정
+            self.show_leds(vec![15, 16]); // 자정
             return;
         }
 
         if h == 12 && m10 + m1 == 0 {
-            self.show_leds(vec![8, 1]); // 정오
+            self.show_leds(vec![16, 21]); // 정오
             return;
         }
 
@@ -171,6 +171,20 @@ impl<SPI: SpiBus> Sleds<SPI> {
             .unwrap()
             .write(gamma(data.iter().cloned()))
             .unwrap();
+    }
+
+    pub fn turn_on_all(&mut self) {
+        let mut data = [RGB8::default(); LED_NUM];
+        let led_hsv = Hsv {
+            hue: *global::LED_HUE.lock().unwrap(),
+            sat: *global::LED_SAT.lock().unwrap(),
+            val: *global::LED_VAL.lock().unwrap(),
+        };
+        let led_rgb = hsv2rgb(led_hsv);
+        for i in 0..LED_NUM {
+            data[i] = led_rgb;
+        }
+        self.sleds.lock().unwrap().write(gamma(data.iter().cloned())).unwrap();
     }
 }
 
