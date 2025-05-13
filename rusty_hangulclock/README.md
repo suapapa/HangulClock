@@ -34,7 +34,7 @@ make erase_nvs
 ```
 
 ## TODOs
-- [ ] Display color setting
+- [x] Display color setting
 - [ ] Timezone setting
 - [x] WPS to connect Wifi
 - [x] NTP to sync time

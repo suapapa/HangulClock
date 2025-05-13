@@ -8,19 +8,91 @@ use log::info;
 use sh1106::prelude::{GraphicsMode as Sh1106GM, I2cInterface};
 use std::time;
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum MenuOption {
+    Wps,
+    Ntp,
+    LedHue,
+    LedSat,
+    LedVal,
+    UtcOffset,
+    Exit,
+}
+
+impl MenuOption {
+    fn as_str(&self) -> &'static str {
+        match self {
+            MenuOption::Wps => "WPS",
+            MenuOption::Ntp => "NTP",
+            MenuOption::LedHue => "LED HUE",
+            MenuOption::LedSat => "LED SAT",
+            MenuOption::LedVal => "LED VAL",
+            MenuOption::UtcOffset => "UTC OFFSET",
+            MenuOption::Exit => "EXIT",
+        }
+    }
+
+    fn next(&self) -> Self {
+        match self {
+            MenuOption::Wps => MenuOption::Ntp,
+            MenuOption::Ntp => MenuOption::LedHue,
+            MenuOption::LedHue => MenuOption::LedSat,
+            MenuOption::LedSat => MenuOption::LedVal,
+            MenuOption::LedVal => MenuOption::UtcOffset,
+            MenuOption::UtcOffset => MenuOption::Exit,
+            MenuOption::Exit => MenuOption::Wps,
+        }
+    }
+
+    fn prev(&self) -> Self {
+        match self {
+            MenuOption::Wps => MenuOption::Exit,
+            MenuOption::Ntp => MenuOption::Wps,
+            MenuOption::LedHue => MenuOption::Ntp,
+            MenuOption::LedSat => MenuOption::LedHue,
+            MenuOption::LedVal => MenuOption::LedSat,
+            MenuOption::UtcOffset => MenuOption::LedVal,
+            MenuOption::Exit => MenuOption::UtcOffset,
+        }
+    }
+
+    fn all() -> [Self; 7] {
+        [
+            MenuOption::Wps,
+            MenuOption::Ntp,
+            MenuOption::LedHue,
+            MenuOption::LedSat,
+            MenuOption::LedVal,
+            MenuOption::UtcOffset,
+            MenuOption::Exit,
+        ]
+    }
+
+    fn index(&self) -> usize {
+        match self {
+            MenuOption::Wps => 0,
+            MenuOption::Ntp => 1,
+            MenuOption::LedHue => 2,
+            MenuOption::LedSat => 3,
+            MenuOption::LedVal => 4,
+            MenuOption::UtcOffset => 5,
+            MenuOption::Exit => 6,
+        }
+    }
+}
+
 pub async fn menu_loop(
     disp: &mut Sh1106GM<I2cInterface<I2cDriver<'_>>>,
     mut p_sel: impl embedded_hal::digital::InputPin + embedded_hal_async::digital::Wait,
 ) -> anyhow::Result<()> {
     info!("staring menu_loop()...");
 
-    let mut menu = 0;
-    let menus = ["WPS", "NTP", "LED HUE", "LED SAT", "LED VAL", "EXIT"];
-    let menu_len = menus.len();
+    let mut current_menu = MenuOption::Wps;
+    let menu_options = MenuOption::all();
+    let menu_len = menu_options.len();
 
     let mut menu_enter_ts: u128 = get_ts();
     let mut sub_menu = false;
-    // let mut sub_menu_value = 0;
 
     loop {
         Timer::after(Duration::from_millis(50)).await;
@@ -43,7 +115,7 @@ pub async fn menu_loop(
                         *event = global::RotaryEvent::None;
                         info!("enter menu");
                         *in_menu = true;
-                        menu = 0;
+                        current_menu = MenuOption::Wps;
                         sub_menu = false;
                         menu_enter_ts = get_ts();
                     }
@@ -59,73 +131,112 @@ pub async fn menu_loop(
             }
 
             if sub_menu {
-                let mut value = match menu {
-                    2 => *global::LED_HUE.lock().unwrap(),
-                    3 => *global::LED_SAT.lock().unwrap(),
-                    4 => *global::LED_VAL.lock().unwrap(),
+                let mut value = match current_menu {
+                    MenuOption::LedHue => *global::LED_HUE.lock().unwrap() as i16,
+                    MenuOption::LedSat => *global::LED_SAT.lock().unwrap() as i16,
+                    MenuOption::LedVal => *global::LED_VAL.lock().unwrap() as i16,
+                    MenuOption::UtcOffset => *global::UTC_OFFSET.lock().unwrap() as i16,
                     _ => 0,
                 };
 
                 draw_text(
                     disp,
-                    &format!("= {} =\n{}\npress to\ndecide", menus[menu], value),
+                    &format!("= {} =\n{}\npress to\ndecide", current_menu.as_str(), value),
                 )?;
 
                 if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
                     match *event {
                         global::RotaryEvent::Clockwise => {
+                            match current_menu {
+                                MenuOption::LedHue | MenuOption::LedSat | MenuOption::LedVal => {
+                                    value += 5;
+                                    if value > 255 {
+                                        value = 255;
+                                    }
+                                }
+                                MenuOption::UtcOffset => {
+                                    value += 1;
+                                    if value > 12 {
+                                        value = 12;
+                                    }
+                                }
+                                _ => {}
+                            }
                             menu_enter_ts = get_ts();
-                            value = value.saturating_add(5);
                             *event = global::RotaryEvent::None;
                         }
                         global::RotaryEvent::CounterClockwise => {
+                            match current_menu {
+                                MenuOption::LedHue | MenuOption::LedSat | MenuOption::LedVal => {
+                                    value -= 5;
+                                    if value < 0 {
+                                        value = 0;
+                                    }
+                                }
+                                MenuOption::UtcOffset => {
+                                    value -= 1;
+                                    if value < -12 {
+                                        value = -12;
+                                    }
+                                }
+                                _ => {}
+                            }
                             menu_enter_ts = get_ts();
-                            value = value.saturating_sub(5);
                             *event = global::RotaryEvent::None;
                         }
                         _ => {}
                     }
 
-                    match menu {
-                        2 => *global::LED_HUE.lock().unwrap() = value,
-                        3 => *global::LED_SAT.lock().unwrap() = value,
-                        4 => *global::LED_VAL.lock().unwrap() = value,
+                    match current_menu {
+                        MenuOption::LedHue => *global::LED_HUE.lock().unwrap() = value as u8,
+                        MenuOption::LedSat => *global::LED_SAT.lock().unwrap() = value as u8,
+                        MenuOption::LedVal => *global::LED_VAL.lock().unwrap() = value as u8,
+                        MenuOption::UtcOffset => *global::UTC_OFFSET.lock().unwrap() = value as i8,
                         _ => {}
                     }
 
-                    if p_sel.is_low().unwrap() {
-                        sub_menu = false;
-                        Timer::after(Duration::from_millis(200)).await;
-                        let hue = *global::LED_HUE.lock().unwrap();
-                        let sat = *global::LED_SAT.lock().unwrap();
-                        let val = *global::LED_VAL.lock().unwrap();
-                        nvs::set_hsv(hue, sat, val).unwrap();
-                    }
                 }
 
-                // sled.turn_on_all();
+
+                if p_sel.is_low().unwrap() {
+                    sub_menu = false;
+                    Timer::after(Duration::from_millis(200)).await;
+                    match current_menu {
+                        MenuOption::LedHue | MenuOption::LedSat | MenuOption::LedVal => {
+                            let hue = *global::LED_HUE.lock().unwrap();
+                            let sat = *global::LED_SAT.lock().unwrap();
+                            let val = *global::LED_VAL.lock().unwrap();
+                            nvs::set_hsv(hue, sat, val).unwrap();
+                        }
+                        MenuOption::UtcOffset => {
+                            let offset = *global::UTC_OFFSET.lock().unwrap();
+                            nvs::set_utc_offset(offset as i32).unwrap();
+                        }
+                        _ => {}
+                    }
+                }
             } else {
                 draw_text(
                     disp,
                     &format!(
                         "= MENU {}/{} =\n{}\npress to\ndecide",
-                        menu + 1,
+                        current_menu.index() + 1,
                         menu_len,
-                        &(menus[menu])
+                        current_menu.as_str()
                     ),
                 )?;
 
                 if let Ok(mut event) = global::ROTARY_EVENT.try_lock() {
                     match *event {
                         global::RotaryEvent::Clockwise => {
-                            menu = (menu + 1) % menu_len;
-                            info!("Menu changed to: {}", menu);
+                            current_menu = current_menu.next();
+                            info!("Menu changed to: {:?}", current_menu);
                             menu_enter_ts = get_ts();
                             *event = global::RotaryEvent::None;
                         }
                         global::RotaryEvent::CounterClockwise => {
-                            menu = if menu == 0 { menu_len - 1 } else { menu - 1 };
-                            info!("Menu changed to: {}", menu);
+                            current_menu = current_menu.prev();
+                            info!("Menu changed to: {:?}", current_menu);
                             menu_enter_ts = get_ts();
                             *event = global::RotaryEvent::None;
                         }
@@ -133,8 +244,8 @@ pub async fn menu_loop(
                             if p_sel.is_low().unwrap() {
                                 info!("decide");
                                 menu_enter_ts = get_ts();
-                                match menu {
-                                    0 => {
+                                match current_menu {
+                                    MenuOption::Wps => {
                                         info!("WPS selected");
                                         match global::CMD_NET.try_lock() {
                                             Ok(mut cmd_net) => {
@@ -142,7 +253,7 @@ pub async fn menu_loop(
                                                     disp,
                                                     &format!(
                                                         "MENU {}/{}\n**WPS**\nwait a moment",
-                                                        menu + 1,
+                                                        current_menu.index() + 1,
                                                         menu_len,
                                                     ),
                                                 )?;
@@ -165,7 +276,7 @@ pub async fn menu_loop(
                                                         disp,
                                                         &format!(
                                                             "MENU {}/{}\nWPS\n**{}**",
-                                                            menu + 1,
+                                                            current_menu.index() + 1,
                                                             menu_len,
                                                             result.as_str(),
                                                         ),
@@ -178,7 +289,7 @@ pub async fn menu_loop(
                                             }
                                         }
                                     }
-                                    1 => {
+                                    MenuOption::Ntp => {
                                         info!("NTP selected");
                                         match global::CMD_NET.try_lock() {
                                             Ok(mut cmd_net) => {
@@ -186,7 +297,7 @@ pub async fn menu_loop(
                                                     disp,
                                                     &format!(
                                                         "MENU {}/{}\n**NTP**\nwait a moment",
-                                                        menu + 1,
+                                                        current_menu.index() + 1,
                                                         menu_len,
                                                     ),
                                                 )?;
@@ -209,7 +320,7 @@ pub async fn menu_loop(
                                                         disp,
                                                         &format!(
                                                             "MENU {}/{}\nNTP\n**{}**",
-                                                            menu + 1,
+                                                            current_menu.index() + 1,
                                                             menu_len,
                                                             result.as_str(),
                                                         ),
@@ -222,23 +333,25 @@ pub async fn menu_loop(
                                             }
                                         }
                                     }
-                                    2 | 3 | 4 => {
+                                    MenuOption::LedHue | MenuOption::LedSat | MenuOption::LedVal => {
                                         // LED color settings
                                         sub_menu = true;
                                         Timer::after(Duration::from_millis(200)).await;
                                     }
-                                    5 => {
+                                    MenuOption::UtcOffset => {
+                                        // UTC OFFSET
+                                        sub_menu = true;
+                                        Timer::after(Duration::from_millis(200)).await;
+                                    }
+                                    MenuOption::Exit => {
                                         // EXIT
                                         info!("EXIT selected");
                                         draw_text(
                                             disp,
-                                            &format!("MENU {}/{}\n**EXIT**", menu + 1, menu_len,),
+                                            &format!("MENU {}/{}\n**EXIT**", current_menu.index() + 1, menu_len,),
                                         )?;
                                         Timer::after(Duration::from_millis(1000)).await;
                                         *in_menu = false;
-                                    }
-                                    _ => {
-                                        info!("Unknown menu selected");
                                     }
                                 }
                             }

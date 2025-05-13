@@ -5,10 +5,10 @@ pub fn set_wifi_cred(ssid: &str, pass: &str) -> anyhow::Result<()> {
     let nvs_default_partition: EspNvsPartition<NvsCustom> =
         EspCustomNvsPartition::take("user_nvs")?;
 
-    let test_namespace = "cred_ns";
-    let mut nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+    let ns = "cred_ns";
+    let mut nvs = match EspNvs::new(nvs_default_partition, ns, true) {
         Ok(nvs) => {
-            info!("Got namespace {:?} from default partition", test_namespace);
+            info!("Got namespace {:?} from default partition", ns);
             nvs
         }
         Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
@@ -32,10 +32,10 @@ pub fn get_wifi_cred() -> anyhow::Result<(String, String)> {
     let nvs_default_partition: EspNvsPartition<NvsCustom> =
         EspCustomNvsPartition::take("user_nvs")?;
 
-    let test_namespace = "cred_ns";
-    let nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+    let ns = "cred_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, ns, true) {
         Ok(nvs) => {
-            info!("Got namespace {:?} from default partition", test_namespace);
+            info!("Got namespace {:?} from default partition", ns);
             nvs
         }
         Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
@@ -115,10 +115,10 @@ pub fn set_hsv(hue: u8, sat: u8, val: u8) -> anyhow::Result<()> {
     let nvs_default_partition: EspNvsPartition<NvsCustom> =
         EspCustomNvsPartition::take("user_nvs")?;
 
-    let test_namespace = "hsv_ns";
-    let nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+    let ns = "hsv_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, ns, true) {
         Ok(nvs) => {
-            info!("Got namespace {:?} from default partition", test_namespace);
+            info!("Got namespace {:?} from default partition", ns);
             nvs
         }
         Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
@@ -147,10 +147,10 @@ pub fn get_hsv() -> anyhow::Result<(u8, u8, u8)> {
     let nvs_default_partition: EspNvsPartition<NvsCustom> =
         EspCustomNvsPartition::take("user_nvs")?;
 
-    let test_namespace = "hsv_ns";
-    let nvs = match EspNvs::new(nvs_default_partition, test_namespace, true) {
+    let ns = "hsv_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, ns, true) {
         Ok(nvs) => {
-            info!("Got namespace {:?} from default partition", test_namespace);
+            info!("Got namespace {:?} from default partition", ns);
             nvs
         }
         Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
@@ -171,4 +171,47 @@ pub fn get_hsv() -> anyhow::Result<(u8, u8, u8)> {
         .unwrap_or(255);
 
     Ok((hue, sat, val)) 
+}
+
+pub fn set_utc_offset(offset: i32) -> anyhow::Result<()> {
+    let nvs_default_partition: EspNvsPartition<NvsCustom> =
+        EspCustomNvsPartition::take("user_nvs")?;
+
+    let ns = "utc_offset_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, ns, true) {
+        Ok(nvs) => {
+            info!("Got namespace {:?} from default partition", ns);
+            nvs
+        }
+        Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
+    };
+
+    let offset_tag = "offset";
+    match nvs.set_i32(offset_tag, offset) {
+        Ok(_) => info!("{:?} updated", offset_tag),
+        Err(e) => return Err(anyhow::anyhow!("Failed to set {:?}: {:?}", offset_tag, e)),
+    };
+
+    Ok(())
+}
+
+pub fn get_utc_offset() -> anyhow::Result<i32> {
+    let nvs_default_partition: EspNvsPartition<NvsCustom> =
+        EspCustomNvsPartition::take("user_nvs")?;
+
+    let ns = "utc_offset_ns";
+    let nvs = match EspNvs::new(nvs_default_partition, ns, true) {
+        Ok(nvs) => {
+            info!("Got namespace {:?} from default partition", ns);
+            nvs
+        }
+        Err(e) => return Err(anyhow::anyhow!("Could't get namespace {:?}", e)),
+    };
+
+    let offset_tag = "offset";
+    let offset = nvs.get_i32(offset_tag)
+        .map(|v| v.unwrap_or(9)) // default offset is 9, Asia/Seoul
+        .unwrap_or(0);
+
+    Ok(offset)
 }

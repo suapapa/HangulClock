@@ -23,4 +23,5 @@ lazy_static! {
     pub static ref LED_HUE: Mutex<u8> = Mutex::new(0);
     pub static ref LED_SAT: Mutex<u8> = Mutex::new(255);
     pub static ref LED_VAL: Mutex<u8> = Mutex::new(255);
+    pub static ref UTC_OFFSET: Mutex<i8> = Mutex::new(9); // Default to KST (UTC+9)
 }
