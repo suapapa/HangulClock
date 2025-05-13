@@ -161,6 +161,9 @@ where
     let mut ntp_ok: bool; // = false;
     let mut last_h: u8 = 0;
     let mut last_m: u8 = 0;
+
+    let utc_offset: i32 = nvs::get_utc_offset()?;
+
     loop {
         match global::IN_MENU.try_lock() {
             Ok(in_menu) => {
@@ -221,7 +224,8 @@ where
         let now = time::SystemTime::now();
         let timestamp = now.duration_since(time::UNIX_EPOCH).unwrap().as_millis();
         let datetime = Utc.timestamp_millis_opt(timestamp as i64).unwrap();
-        let datetime_kst = datetime.with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
+        let datetime_kst =
+            datetime.with_timezone(&FixedOffset::east_opt(utc_offset * 3600).unwrap());
         // info!("Current datetime: {}", datetime_kst);
 
         let h: u8 = datetime_kst.hour() as u8;
