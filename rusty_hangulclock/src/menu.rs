@@ -75,12 +75,12 @@ pub async fn menu_loop(
                     match *event {
                         global::RotaryEvent::Clockwise => {
                             menu_enter_ts = get_ts();
-                            value = value.saturating_add(1);
+                            value = value.saturating_add(5);
                             *event = global::RotaryEvent::None;
                         }
                         global::RotaryEvent::CounterClockwise => {
                             menu_enter_ts = get_ts();
-                            value = value.saturating_sub(1);
+                            value = value.saturating_sub(5);
                             *event = global::RotaryEvent::None;
                         }
                         _ => {}

@@ -56,7 +56,7 @@ impl<SPI: SpiBus> Sleds<SPI> {
                 .unwrap()
                 .write(gamma(data.iter().cloned()))
                 .unwrap();
-            std::thread::sleep(std::time::Duration::from_millis(100));
+            std::thread::sleep(std::time::Duration::from_millis(50));
         }
 
         let mut data = [RGB8::default(); LED_NUM];
@@ -74,6 +74,7 @@ impl<SPI: SpiBus> Sleds<SPI> {
             .unwrap()
             .write(gamma(data.iter().cloned()))
             .unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(1000));
 
         // load default hsv
         let (hue, sat, val) = nvs::get_hsv().unwrap();
@@ -81,6 +82,8 @@ impl<SPI: SpiBus> Sleds<SPI> {
         *global::LED_HUE.lock().unwrap() = hue;
         *global::LED_SAT.lock().unwrap() = sat;
         *global::LED_VAL.lock().unwrap() = val;
+
+        self.turn_on_all();
     }
 
     pub fn show_time(&mut self, h: u8, m: u8) {

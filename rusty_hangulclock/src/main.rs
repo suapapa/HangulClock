@@ -155,7 +155,7 @@ where
     SPI: embedded_hal::spi::SpiBus,
 {
     info!("Starting show_time_loop()...");
-    sleds.turn_on_all();
+    //sleds.turn_on_all();
 
     let mut skip_display: bool; // = false;
     let mut ntp_ok: bool; // = false;
@@ -174,7 +174,8 @@ where
         }
 
         if skip_display {
-            Timer::after(Duration::from_secs(1)).await;
+            sleds.turn_on_all();
+            Timer::after(Duration::from_millis(500)).await;
             continue;
         }
 
@@ -240,7 +241,7 @@ where
             info!("Time updated, h: {}, m: {}", h, m);
             sleds.show_time(h, m);
         }
-        Timer::after(Duration::from_secs(10)).await;
+        Timer::after(Duration::from_secs(1)).await;
     }
     // Ok(())
 }
