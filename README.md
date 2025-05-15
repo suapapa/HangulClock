@@ -11,7 +11,9 @@
 
 ### Rusty HangulClock
 
-Please Refer [rusty_hangulclock/README.md](rusty_hangulclock/README.md)
+~~Please Refer [rusty_hangulclock/README.md](rusty_hangulclock/README.md)~~
+
+> ⚠️ Moved to seperated repository [suapapa/rusty-hangulclock](https://github.com/suapapa/rusty-hangulclock)
 
 ### Go program which using Periph.io
 
