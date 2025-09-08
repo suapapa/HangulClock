@@ -1,6 +1,6 @@
 # 한글시계 - HangulClock
 
-![HangulClock](https://homin.dev/asset/blog/img/hangulclock_2022.jpg)
+![HangulClock](https://asset.homin.dev/blog/img/hangulclock_2022.webp)
 
 한글시계는 오픈소스(SW/HW) 입니다. [시연 동영상](https://youtu.be/ApymC7qAVTI)
 

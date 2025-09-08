@@ -1,6 +1,6 @@
 # Rusty HangulClock
 
-![rusty_hangulclock](https://homin.dev/asset/blog/img/rusty_hangulclock_00_1024.jpg)
+![rusty_hangulclock](https://asset.homin.dev/blog/img/rusty_hangulclock_00_1024.webp)
 
 HangulClock written in Rust on ESP32C3 board
 
