@@ -39,13 +39,18 @@ Need update submoduls HT1380 and LedControl to build the sketch;
 
 ## 라이선스
 
-### 5x5 한글 조합
+### 5x5 한글 조합 - BY-CC
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />이 저작물은 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">크리에이티브 커먼즈 저작자표시 4.0 국제 라이선스</a>에 따라 이용할 수 있습니다.
 
-### 소스코드 
+### 소스코드 - OpenSource
 
 아두이노 스케치와, 고 프로그램의 라이선스가 각각 다릅니다. 각각의 폴더에서 확인하세요.
-- Rust program: [rusty_hangulclock/LICENSE](rusty_hangulclock/LICENSE)
-- Go program: [go_hangulclock/LICENSE](go_hangulclock/LICENSE)
-- Arduino Sketch: [ardino/HangulClock/LICENSE](arduino/HangulClock/LICENSE)
+- Rust program: [rusty_hangulclock/LICENSE](rusty_hangulclock/LICENSE) - BSD
+- Go program: [go_hangulclock/LICENSE](go_hangulclock/LICENSE) - BSD
+- Arduino Sketch: [ardino/HangulClock/LICENSE](arduino/HangulClock/LICENSE) - GPL
+
+### 회로도, 아트워크, 케이스 및 그 밖의 파일들 - Proprietary
+
+회로도, 아트워크, 케이스 설계 파일 및 그 밖의 모든 파일들은 독점 라이선스 하에 있습니다. 
+이러한 파일들의 사용, 복제, 수정, 배포는 저작권자의 명시적 허가 없이는 금지됩니다.
